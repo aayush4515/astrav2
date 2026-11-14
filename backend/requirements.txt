@@ -1,0 +1,12 @@
+fastapi>=0.115,<1
+uvicorn[standard]>=0.30
+pydantic>=2.7,<3
+sqlalchemy>=2.0,<2.1
+numpy>=1.26,<2
+pandas>=2.2,<3
+scikit-learn>=1.5,<1.8
+opencv-python-headless>=4.10,<4.12
+mediapipe==0.10.21
+faster-whisper>=1.1,<2
+piper-tts>=1.2,<2
+python-multipart>=0.0.9

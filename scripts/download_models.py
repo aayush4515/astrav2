@@ -22,6 +22,7 @@ FACE = {
         "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
 }
 PIPER = "https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/amy/medium/"
+KOKORO = "https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/"
 
 
 def fetch(url: str, dest: Path) -> None:
@@ -44,6 +45,8 @@ def main() -> int:
         fetch(url, ROOT / rel)
     for f in ("en_US-amy-medium.onnx", "en_US-amy-medium.onnx.json"):
         fetch(PIPER + f, ROOT / "piper" / f)
+    for f in ("kokoro-v1.0.int8.onnx", "voices-v1.0.bin"):
+        fetch(KOKORO + f, ROOT / "kokoro" / f)
     stt_dir = ROOT / "stt" / f"faster-whisper-{args.stt}"
     for f in ("config.json", "tokenizer.json", "vocabulary.txt", "model.bin"):
         fetch(f"https://huggingface.co/Systran/faster-whisper-{args.stt}/resolve/main/{f}", stt_dir / f)

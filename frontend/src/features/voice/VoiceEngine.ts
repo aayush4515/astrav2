@@ -26,7 +26,7 @@ class VoiceEngineImpl {
   captions: Caption[] = [];
   error: string | null = null;
   micAvailable = true;
-  ttsMode: "piper" | "browser" | "text" = "piper";
+  ttsMode: "local" | "browser" | "text" = "local";
   muted = false;
   private ctx: AudioContext | null = null;
   private mic = new Microphone();
@@ -110,9 +110,9 @@ class VoiceEngineImpl {
       if (this.muted || !this.unlocked) {
         // Audio is blocked until the first user gesture: show the caption for a readable duration instead.
         await wait(Math.min(6000, 600 + text.length * 35), signal);
-      } else if (this.ttsMode === "piper") {
+      } else if (this.ttsMode === "local") {
         try {
-          await this.playPiper(text, signal);
+          await this.playLocal(text, signal);
         } catch (e) {
           if ((e as DOMException)?.name === "AbortError") throw e;
           this.ttsMode = "speechSynthesis" in window ? "browser" : "text";
@@ -128,11 +128,27 @@ class VoiceEngineImpl {
     }
   }
 
-  private async playPiper(text: string, signal?: AbortSignal) {
+  /**
+   * Plays local TTS sentence by sentence: the first sentence starts as soon as it is synthesized
+   * while the next one is generated in the background, so long lines don't wait for full synthesis.
+   */
+  private async playLocal(text: string, signal?: AbortSignal) {
     await this.unlock();
-    const data = await api.synthesize(text, signal);
-    const buf = await this.ctx!.decodeAudioData(data.slice(0));
-    await new Promise<void>((resolve, reject) => {
+    const parts = splitSentences(text);
+    const fetchPart = (i: number) => api.synthesize(parts[i], signal).then((d) => this.ctx!.decodeAudioData(d.slice(0)));
+    let next = fetchPart(0);
+    for (let i = 0; i < parts.length; i++) {
+      const buf = await next;
+      if (i + 1 < parts.length) {
+        next = fetchPart(i + 1);
+        next.catch(() => undefined); // surfaced when awaited
+      }
+      await this.playBuffer(buf, signal);
+    }
+  }
+
+  private playBuffer(buf: AudioBuffer, signal?: AbortSignal): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
       const src = this.ctx!.createBufferSource();
       src.buffer = buf;
       src.connect(this.ctx!.destination);
@@ -229,6 +245,17 @@ class VoiceEngineImpl {
   setProcessing(on: boolean) {
     this.set(on ? "processing" : "idle");
   }
+}
+
+/** Split speech into sentences, merging very short fragments so prosody stays natural. */
+export function splitSentences(text: string): string[] {
+  const raw = text.match(/[^.!?]+[.!?]+["')\]]*\s*|[^.!?]+$/g) ?? [text];
+  const out: string[] = [];
+  for (const r of raw.map((x) => x.trim()).filter(Boolean)) {
+    if (out.length && (out[out.length - 1].length < 25 || r.length < 12)) out[out.length - 1] += " " + r;
+    else out.push(r);
+  }
+  return out.length ? out : [text];
 }
 
 export function wait(ms: number, signal?: AbortSignal): Promise<void> {

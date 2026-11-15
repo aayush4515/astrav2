@@ -68,3 +68,14 @@ def test_api_endpoints(client):
     assert r.status_code == 200 and r.headers["content-type"] == "audio/wav"
     t = client.post("/api/voice/transcribe", content=_to_16k(r.content), headers={"Content-Type": "audio/wav"})
     assert t.status_code == 200 and "assessment" in t.json()["text"].lower()
+
+
+def test_engine_status_and_piper_fallback():
+    from app.services.voice.tts import _Piper
+
+    status = tts.status()
+    assert status["ready"] and status["engine"] in ("kokoro", "piper")
+    # The fallback engine must also work on its own.
+    wav = _Piper().synthesize("Fallback voice check.")
+    out = stt.transcribe(_to_16k(wav))
+    assert "voice" in out["text"].lower()

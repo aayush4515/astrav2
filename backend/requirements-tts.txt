@@ -1,0 +1,5 @@
+# Kokoro natural TTS. Installed with --no-deps (see scripts/setup.sh): kokoro-onnx declares numpy>=2,
+# but runs fine on numpy 1.26, which MediaPipe 0.10.21 requires.
+kokoro-onnx==0.5.0
+espeakng-loader==0.2.4
+phonemizer-fork==3.3.2

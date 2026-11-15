@@ -15,7 +15,7 @@ ASTRA is an offline-first health booth for long-duration missions. An astronaut 
 | Face detection + identity matching | **Real.** OpenCV YuNet detector and SFace 128-d embeddings, cosine matching with a threshold and margin, and multi-frame confirmation |
 | Facial landmark analysis | **Real.** MediaPipe Face Landmarker (478 points, blendshapes, head pose) with quality gating and per-astronaut change detection |
 | Speech-to-text | **Real, offline.** faster-whisper `base.en` on CPU; the browser does VAD and uploads 16 kHz WAV to the local backend |
-| Text-to-speech | **Real, offline.** Piper `en_US-amy-medium` voice. Falls back to the browser's speech, then to on-screen text only |
+| Text-to-speech | **Real, offline.** Kokoro (`af_heart` voice, int8 ONNX) for a natural, slightly brisk delivery, streamed sentence by sentence. Falls back to Piper `en_US-amy-medium`, then the browser's speech, then on-screen text only |
 | Voice commands / intents | **Real.** Deterministic rule-based router; every intent triggers a UI action or backend query |
 | Heart rate, BP, SpO₂, temperature, respiration, mass, sleep, HRV, exercise | **Simulated**, deterministic adapters behind a hardware-agnostic `SensorAdapter` interface |
 | Electronic nose (VOC fingerprint) | **Simulated + experimental.** Change detection only, no hormone claims |
@@ -130,7 +130,7 @@ Hardware paths (real webcam, real mic) are exercised manually; see the checklist
 
 ## Configuration
 
-Environment variables (prefix `ASTRA_`): `DATABASE_URL`, `MODELS_DIR`, `FACE_MATCH_THRESHOLD` (0.45), `FACE_MATCH_MARGIN` (0.08), `FACE_CONFIRM_FRAMES` (3), `STT_MODEL` (base.en), `STT_DEVICE` (cpu), `TTS_VOICE`, `OPERATOR_PIN`, `BLOOD_TEST_INTERVAL_DAYS` (7), `COMM_DELAY_S` (12), `SENSOR_TIME_SCALE` (1; 0 makes simulated sensors instant).
+Environment variables (prefix `ASTRA_`): `DATABASE_URL`, `MODELS_DIR`, `FACE_MATCH_THRESHOLD` (0.45), `FACE_MATCH_MARGIN` (0.08), `FACE_CONFIRM_FRAMES` (3), `STT_MODEL` (base.en), `STT_DEVICE` (cpu), `TTS_ENGINE` (kokoro \| piper), `TTS_SPEED` (1.1), `KOKORO_VOICE` (af_heart; also af_bella, am_michael, bf_emma…), `TTS_VOICE` (Piper fallback voice), `OPERATOR_PIN`, `BLOOD_TEST_INTERVAL_DAYS` (7), `COMM_DELAY_S` (12), `SENSOR_TIME_SCALE` (1; 0 makes simulated sensors instant).
 
 ## Scientific basis
 

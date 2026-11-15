@@ -33,7 +33,11 @@ class Settings:
     # Speech
     stt_model: str = _env("STT_MODEL", "base.en")
     stt_device: str = _env("STT_DEVICE", "cpu")
-    tts_voice: str = _env("TTS_VOICE", "en_US-amy-medium")
+    # TTS: Kokoro (natural, preferred) with Piper as automatic fallback.
+    tts_engine: str = _env("TTS_ENGINE", "kokoro")  # kokoro | piper
+    tts_speed: float = float(_env("TTS_SPEED", "1.1"))  # 1.0 = model default pace
+    kokoro_voice: str = _env("KOKORO_VOICE", "af_heart")
+    tts_voice: str = _env("TTS_VOICE", "en_US-amy-medium")  # Piper voice
 
     # Access control (demo only — see docs/FACIAL_AUTH.md)
     operator_pin: str = _env("OPERATOR_PIN", "2026")
@@ -52,6 +56,10 @@ class Settings:
     @property
     def face_dir(self) -> Path:
         return self.models_dir / "face"
+
+    @property
+    def kokoro_dir(self) -> Path:
+        return self.models_dir / "kokoro"
 
     @property
     def piper_dir(self) -> Path:

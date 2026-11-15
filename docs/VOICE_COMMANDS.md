@@ -6,7 +6,7 @@
 2. **Voice activity detection** (browser): an adaptive energy threshold over the noise floor, a pre-roll so the first word isn't clipped, and end-of-turn after ~1 s of silence. A no-speech timeout counts as "silence".
 3. **Transcription** (backend, local): faster-whisper `base.en`, int8 on CPU, with a vocabulary bias prompt. Known Whisper "silence hallucinations" ("thank you", "you") are discarded. Raw audio is never stored.
 4. **Interpretation:** a deterministic parser and intent router (`backend/app/services/voice`), with no generative model in the clinical logic.
-5. **Speech:** Piper `en_US-amy-medium` produces WAV, played through Web Audio. If Piper fails, ASTRA falls back to the browser's speech synthesis, and then to text-only captions.
+5. **Speech:** Kokoro (82M-parameter model, int8 ONNX, `af_heart` voice at 1.1× pace) produces WAV, played through Web Audio. The browser requests one sentence at a time and synthesizes the next while the current one plays, so speech starts in about half a second. If Kokoro is unavailable, ASTRA uses Piper (`en_US-amy-medium`, tuned slightly faster and more expressive), then the browser's speech synthesis, then text-only captions. Change the voice with `ASTRA_KOKORO_VOICE` and the pace with `ASTRA_TTS_SPEED`.
 
 UI states: *Standing by · ASTRA speaking · Listening · Transcribing · Analyzing · Didn't catch that*. All spoken text is also shown as captions, and transcribed answers appear in green quotes.
 

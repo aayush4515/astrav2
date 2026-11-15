@@ -3,9 +3,7 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
-  --bg: #04070f;
-  --cyan: #5ee7ff;
+  color-scheme: light;
 }
 
 html,
@@ -16,60 +14,74 @@ body,
 
 body {
   margin: 0;
-  background:
-    radial-gradient(1200px 700px at 50% -10%, rgba(40, 90, 180, 0.18), transparent 60%),
-    radial-gradient(900px 600px at 100% 100%, rgba(20, 60, 120, 0.12), transparent 60%),
-    var(--bg);
-  color: #e8eefc;
+  @apply bg-water text-ink;
   font-family: "Inter Variable", Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-weight: 600;
+  font-size: 17px;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
 
-/* Subtle instrumentation grid */
-.grid-bg {
-  background-image:
-    linear-gradient(rgba(120, 170, 255, 0.045) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(120, 170, 255, 0.045) 1px, transparent 1px);
-  background-size: 48px 48px;
+::selection {
+  @apply bg-cap-yellow text-ink;
+}
+
+:focus-visible {
+  outline: 3px solid #2c2e2a;
+  outline-offset: 3px;
+}
+
+input,
+select,
+textarea {
+  caret-color: #2c2e2a;
+  accent-color: #2c2e2a;
+}
+
+a {
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: 2px;
 }
 
 @layer components {
-  .panel {
-    @apply rounded-2xl border border-line bg-panel backdrop-blur-xl;
+  /* The world's display voice: huge, tight, one weight. */
+  .display {
+    @apply leading-map tracking-map text-ink;
+    text-wrap: balance;
+  }
+  .sheet {
+    @apply rounded-[28px] bg-sheet;
+  }
+  .sheet-title {
+    @apply text-lg leading-tight tracking-[-0.02em] text-ink;
   }
   .label {
-    @apply font-mono text-[11px] uppercase tracking-[0.18em] text-ink-muted;
+    @apply text-[13px] leading-snug text-ink-soft;
   }
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition
-      focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-glow/70 disabled:cursor-not-allowed disabled:opacity-40;
+    @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full px-5 py-2.5 text-[15px] text-ink transition-colors
+      disabled:cursor-not-allowed disabled:opacity-40;
   }
   .btn-primary {
-    @apply btn bg-cyan-glow/15 text-cyan-soft ring-1 ring-cyan-glow/40 hover:bg-cyan-glow/25;
+    @apply btn bg-cap-yellow hover:bg-[#E3D100];
   }
   .btn-ghost {
-    @apply btn text-ink-muted ring-1 ring-line hover:bg-white/5 hover:text-ink;
+    @apply btn bg-sheet ring-1 ring-inset ring-rule hover:bg-cap-yellow/40;
   }
   .btn-danger {
-    @apply btn bg-alert/15 text-alert ring-1 ring-alert/50 hover:bg-alert/25;
+    @apply btn bg-st-urgent text-white hover:bg-[#A80D26];
   }
   .input {
-    @apply w-full rounded-xl border border-line bg-black/30 px-3 py-2.5 text-sm text-ink placeholder:text-ink-faint
-      focus:border-cyan-glow/50 focus:outline-none focus:ring-1 focus:ring-cyan-glow/40;
+    @apply min-h-[44px] w-full rounded-full bg-sheet px-5 py-2.5 text-[15px] text-ink ring-1 ring-inset ring-rule placeholder:text-ink-faint
+      focus:outline-none focus:ring-2 focus:ring-ink;
   }
   .chip {
-    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium;
+    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[13px] text-ink;
   }
 }
 
-.status-clear { color: #4ade80; }
-.status-watch { color: #fbbf24; }
-.status-review { color: #fb923c; }
-.status-urgent { color: #f87171; }
-
-::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-thumb { background: rgba(120, 170, 255, 0.18); border-radius: 8px; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: rgba(44, 46, 42, 0.28); border-radius: 999px; border: 2px solid transparent; background-clip: padding-box; }
 ::-webkit-scrollbar-track { background: transparent; }
 
 @media (prefers-reduced-motion: reduce) {

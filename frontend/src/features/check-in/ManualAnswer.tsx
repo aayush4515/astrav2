@@ -42,9 +42,9 @@ export function ManualAnswer({ question, mode = "question" }: { question?: Quest
     <div className="flex flex-col items-center gap-2">
       {showAll ? (
         <>
-          <div className="flex flex-wrap justify-center gap-1.5">
+          <div className="flex flex-wrap justify-center gap-2">
             {quick.map((q) => (
-              <button key={q} className="btn-ghost px-3 py-1.5" onClick={() => send(q)}>
+              <button key={q} className="btn-ghost" onClick={() => send(q)}>
                 {q}
               </button>
             ))}
@@ -63,8 +63,8 @@ export function ManualAnswer({ question, mode = "question" }: { question?: Quest
           </form>
         </>
       ) : (
-        <button className="flex items-center gap-1.5 text-xs text-ink-faint hover:text-ink-muted" onClick={() => setOpen(true)}>
-          <Keyboard size={13} /> Answer without voice
+        <button className="chip bg-sheet py-2 hover:bg-cap-yellow" onClick={() => setOpen(true)}>
+          <Keyboard size={15} /> Answer without voice
         </button>
       )}
     </div>

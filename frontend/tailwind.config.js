@@ -1,23 +1,33 @@
 /** @type {import('tailwindcss').Config} */
+// Guide Map world: flat land on cream water, capsule controls, one grotesk at one weight.
+const ONE_WEIGHT = "600";
+
 export default {
   content: ["./index.html", "./src/**/*.{ts,tsx}"],
   theme: {
+    fontWeight: {
+      light: ONE_WEIGHT,
+      normal: ONE_WEIGHT,
+      medium: ONE_WEIGHT,
+      semibold: ONE_WEIGHT,
+      bold: ONE_WEIGHT,
+    },
     extend: {
       colors: {
-        void: "#04070f",
-        deep: "#070d1c",
-        panel: "rgba(12, 22, 44, 0.62)",
-        line: "rgba(120, 170, 255, 0.14)",
-        cyan: { glow: "#5ee7ff", soft: "#8fdcff" },
-        ok: "#4ade80",
-        caution: "#fbbf24",
-        alert: "#f87171",
-        ink: { DEFAULT: "#e8eefc", muted: "#8b97b3", faint: "#5b6785" },
+        water: "#F5F1E4",
+        land: "#8ED462",
+        sheet: "#FFFFFF",
+        ink: { DEFAULT: "#2C2E2A", soft: "#4A4D46", faint: "#5E6158" },
+        rule: "rgba(44, 46, 42, 0.14)",
+        cap: { yellow: "#F5E211", coral: "#FF705D", blue: "#2BA0FF", lilac: "#EBC1FF" },
+        // Health status: own deep tones, always paired with a shape mark and words.
+        st: { clear: "#1E6B35", watch: "#8A5A00", review: "#B23E0A", urgent: "#C8102E" },
       },
       fontFamily: {
         sans: ["Inter Variable", "Inter", "system-ui", "-apple-system", "Segoe UI", "Roboto", "sans-serif"],
-        mono: ["JetBrains Mono Variable", "JetBrains Mono", "ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
       },
+      letterSpacing: { map: "-0.06em" },
+      lineHeight: { map: "0.95" },
       keyframes: {
         breathe: { "0%,100%": { opacity: "0.55" }, "50%": { opacity: "1" } },
         scan: { "0%": { transform: "translateY(-100%)" }, "100%": { transform: "translateY(100%)" } },

@@ -15,6 +15,8 @@ import { useEmergency } from "../features/emergency/EmergencyContext";
 import { useRecognitionLoop } from "../features/identity/useRecognitionLoop";
 import { Captions } from "../features/voice/Captions";
 import { VoiceOrb } from "../features/voice/VoiceOrb";
+import { Lobe } from "../components/Lobe";
+import { StatusMark } from "../features/dashboard/StatusMark";
 import { voice } from "../features/voice/VoiceEngine";
 
 const BOOTH_KEY = "astra.boothActive";
@@ -26,15 +28,16 @@ function boothPhase(stage: FlowState["stage"]): BoothPhase {
   return "scanning";
 }
 
+// `color` outlines the detected face on the camera preview; the headline itself stays ink.
 const RECOG_TEXT: Record<string, { text: string; color: string }> = {
-  no_face: { text: "Approach for health check-in", color: "#e8eefc" },
-  multiple_faces: { text: "One astronaut at a time, please", color: "#fbbf24" },
-  low_quality: { text: "Hold still and face the camera", color: "#8fdcff" },
-  unknown: { text: "Face not recognized", color: "#fbbf24" },
-  ambiguous: { text: "Identity uncertain — face the camera", color: "#fbbf24" },
-  no_enrollments: { text: "No astronauts enrolled yet", color: "#fbbf24" },
-  matching: { text: "Verifying identity…", color: "#5ee7ff" },
-  confirmed: { text: "Identity confirmed", color: "#4ade80" },
+  no_face: { text: "Approach for health check-in", color: "#F5F1E4" },
+  multiple_faces: { text: "One astronaut at a time, please", color: "#F5E211" },
+  low_quality: { text: "Hold still and face the camera", color: "#EBC1FF" },
+  unknown: { text: "Face not recognized", color: "#F5E211" },
+  ambiguous: { text: "Identity uncertain — face the camera", color: "#F5E211" },
+  no_enrollments: { text: "No astronauts enrolled yet", color: "#F5E211" },
+  matching: { text: "Verifying identity…", color: "#2BA0FF" },
+  confirmed: { text: "Identity confirmed", color: "#8ED462" },
 };
 
 /**
@@ -111,7 +114,7 @@ export default function AstraHome() {
   }, [flow.details.open, flow.session, flow.result]);
 
   const recog = recognition.awaitingDeparture
-    ? { text: "Session complete · see you next time", color: "#4ade80" }
+    ? { text: "Session complete · see you next time", color: "#8ED462" }
     : recognition.result
       ? RECOG_TEXT[recognition.result.status] ?? RECOG_TEXT.no_face
       : RECOG_TEXT.no_face;
@@ -120,8 +123,8 @@ export default function AstraHome() {
     <div className="relative flex min-h-[calc(100vh-64px)] flex-col">
       {!inSession ? (
         <section className="relative flex flex-1 flex-col">
-          {/* Booth fills the screen on mobile and the right ~60% on desktop. */}
-          <div className="absolute inset-x-0 top-0 h-[46%] lg:inset-y-0 lg:left-[38%] lg:right-0 lg:h-auto">
+          {/* Booth sits above the lobe on mobile and fills the right ~60% on desktop. */}
+          <div className="relative order-1 h-[42vh] min-h-[280px] lg:absolute lg:inset-y-0 lg:left-[38%] lg:right-0 lg:h-auto">
             <BoothView
               activeDevice={recognition.result?.status === "matching" ? "face_camera" : null}
               phase={recognition.result?.status === "matching" ? "identifying" : "standby"}
@@ -129,8 +132,8 @@ export default function AstraHome() {
               onSelect={setSelectedDevice}
             />
           </div>
-          <div className="pointer-events-none absolute inset-y-0 left-0 hidden w-[55%] bg-gradient-to-r from-void via-void/85 to-transparent lg:block" />
-          <div className="relative z-10 mt-auto flex min-h-[56%] flex-col bg-gradient-to-t from-void via-void to-void/0 px-6 pb-8 pt-16 lg:mt-0 lg:min-h-0 lg:w-[44%] lg:flex-1 lg:bg-none lg:px-12 lg:py-10 xl:px-16">
+          <div className="relative z-10 flex flex-1 flex-col overflow-hidden px-6 pb-12 pt-12 lg:w-[46%] lg:overflow-visible lg:py-10 lg:pl-12 lg:pr-[5%] xl:pl-16">
+            <Lobe seed={11} swell={0.14} square={0.6} className="-left-[14%] -right-[10%] top-0 bottom-0 lg:-left-[34%] lg:-right-[15%] lg:-top-[3%] lg:bottom-[-12%]" />
             <StandbyPanel
               camera={camera}
               active={boothActive}
@@ -162,47 +165,45 @@ function CheckinLayout({ flow, camera, onEnd, onDetails, insights, setDetails }:
   const phase = boothPhase(flow.stage);
   const compactBooth = phase === "conversation" || phase === "results";
   return (
-    <section className={`relative grid flex-1 gap-4 p-4 transition-[grid-template-columns] duration-500 lg:h-[calc(100vh-64px)] lg:grid-rows-[minmax(0,1fr)] lg:p-6 ${compactBooth ? "lg:grid-cols-[0.8fr_1.2fr]" : "lg:grid-cols-[1.25fr_1fr]"}`}>
-      <motion.div layout className={`panel relative overflow-hidden ${compactBooth ? "min-h-[260px] lg:min-h-0" : "min-h-[380px]"}`}>
+    <section className={`relative grid flex-1 gap-4 p-4 transition-[grid-template-columns] duration-500 lg:h-[calc(100vh-64px)] lg:flex-none lg:grid-rows-[minmax(0,1fr)] lg:p-6 ${compactBooth ? "lg:grid-cols-[0.8fr_1.2fr]" : "lg:grid-cols-[1.25fr_1fr]"}`}>
+      <motion.div layout className={`relative overflow-hidden rounded-[32px] ${compactBooth ? "min-h-[260px] lg:min-h-0" : "min-h-[380px]"}`}>
         <BoothView activeDevice={flow.activeDevice} phase={phase} progress={flow.blood?.phase === "analyzing" ? 0.6 : 0} showInfo={false} />
-        <div className="pointer-events-none absolute inset-x-0 top-0 flex items-center gap-3 bg-gradient-to-b from-void/90 to-transparent p-4 pb-10">
-          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-cyan-glow/15 text-sm font-semibold text-cyan-soft ring-1 ring-cyan-glow/40">
-            {(flow.session?.preferred_name ?? "?").slice(0, 1).toUpperCase()}
+        <div className="pointer-events-none absolute left-3 top-3 flex flex-wrap items-center gap-2">
+          <span className="chip bg-cap-yellow px-4 py-2 text-[17px]">{flow.checkin?.astronaut.display_name ?? flow.session?.display_name}</span>
+          <span className="chip bg-sheet">
+            {flow.session?.method === "operator_recovery" ? (
+              <>
+                <ShieldAlert size={14} /> Operator recovery session
+              </>
+            ) : (
+              <>
+                <ScanFace size={14} /> Face-authenticated
+              </>
+            )}
           </span>
-          <div className="leading-tight">
-            <div className="text-lg font-semibold">{flow.checkin?.astronaut.display_name ?? flow.session?.display_name}</div>
-            <div className="label flex items-center gap-1.5">
-              {flow.session?.method === "operator_recovery" ? (
-                <>
-                  <ShieldAlert size={11} className="text-caution" /> Operator recovery session
-                </>
-              ) : (
-                <>
-                  <ScanFace size={11} className="text-ok" /> Face-authenticated
-                </>
-              )}
-            </div>
-          </div>
         </div>
         {flow.activity && (
-          <div className="pointer-events-none absolute bottom-4 left-4 flex items-center gap-2 rounded-full border border-line bg-void/70 px-3 py-1.5 backdrop-blur">
-            <span className={`h-1.5 w-1.5 rounded-full ${flow.activeDevice ? "animate-breathe bg-cyan-glow" : "bg-ink-faint"}`} />
-            <span className="text-xs text-ink-muted">{flow.activity}</span>
+          <div className="pointer-events-none absolute bottom-3 left-3 flex items-center gap-2 rounded-full bg-sheet px-4 py-2">
+            <span className={`h-2.5 w-2.5 rounded-full ${flow.activeDevice ? "animate-breathe bg-cap-coral" : "bg-ink-faint"}`} />
+            <span className="text-[15px] text-ink">{flow.activity}</span>
           </div>
         )}
       </motion.div>
-      <div className="flex min-h-0 flex-col gap-4">
-        <div className="flex items-center justify-between gap-6">
+      <div className="flex min-h-0 min-w-0 flex-col gap-4">
+        <div className="flex min-w-0 items-center justify-between gap-4">
           <ProgressSteps stage={flow.stage} />
-          <button className="btn-ghost shrink-0 px-3 py-1.5 text-xs" onClick={onEnd}>
-            <LogOut size={13} /> End session
+          <button className="btn-ghost shrink-0" onClick={onEnd} aria-label="End session">
+            <LogOut size={15} /> End<span className="hidden sm:inline"> session</span>
           </button>
         </div>
-        <div className="panel flex flex-1 flex-col overflow-y-auto p-5">
-          <StagePanel flow={flow} camera={camera} onDetails={onDetails} />
+        <div className="relative flex min-h-[420px] flex-1 flex-col lg:min-h-0">
+          <Lobe seed={23} swell={0.06} square={0.85} className="-inset-x-[3%] -inset-y-[2%]" />
+          <div className="relative flex min-h-0 flex-1 flex-col overflow-y-auto px-[6%] py-[5%]">
+            <StagePanel flow={flow} camera={camera} onDetails={onDetails} />
+          </div>
         </div>
         {flow.stage !== "VOICE_QUESTIONNAIRE" && flow.stage !== "PROCESSING" && (
-          <div className="panel flex items-center gap-4 p-3">
+          <div className="sheet flex flex-col items-center gap-3 p-4 sm:flex-row sm:gap-4 sm:p-3 sm:pr-6">
             <VoiceOrb size={56} />
             <div className="min-w-0 flex-1">
               <Captions max={2} />
@@ -210,8 +211,8 @@ function CheckinLayout({ flow, camera, onEnd, onDetails, insights, setDetails }:
           </div>
         )}
         {flow.faults.length > 0 && (
-          <div className="flex items-start gap-2 text-xs text-caution">
-            <ShieldAlert size={14} /> {flow.faults.join(" · ")}
+          <div className="flex items-start gap-2 text-[15px] text-st-watch">
+            <StatusMark level="watch" className="mt-1" /> {flow.faults.join(" · ")}
           </div>
         )}
       </div>
@@ -222,7 +223,7 @@ function CheckinLayout({ flow, camera, onEnd, onDetails, insights, setDetails }:
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-30 bg-void/60 backdrop-blur-[2px]"
+            className="fixed inset-0 z-30 bg-ink/40"
             onClick={() => setDetails({ open: false })}
             aria-hidden
           />
@@ -234,7 +235,7 @@ function CheckinLayout({ flow, camera, onEnd, onDetails, insights, setDetails }:
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 30, stiffness: 260 }}
-            className="fixed inset-y-0 right-0 z-40 w-full max-w-3xl border-l border-line bg-deep/95 backdrop-blur-xl"
+            className="fixed inset-y-0 right-0 z-40 w-full max-w-3xl bg-water shadow-[-16px_0_48px_rgba(44,46,42,0.22)]"
           >
             <DetailsPanel
               insights={insights}

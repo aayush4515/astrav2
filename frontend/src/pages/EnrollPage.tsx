@@ -7,6 +7,8 @@ import { api, ApiError, tokens, type EnrollFrameResult } from "../services/api";
 import type { Astronaut, RosterEntry } from "../types";
 import { CameraView } from "../features/facial-analysis/CameraView";
 import { voice } from "../features/voice/VoiceEngine";
+import { Lobe } from "../components/Lobe";
+import { StatusMark } from "../features/dashboard/StatusMark";
 
 type Step = "choose" | "form" | "capture" | "done";
 
@@ -36,49 +38,51 @@ export default function EnrollPage() {
   };
 
   return (
-    <div className="mx-auto flex max-w-5xl flex-col gap-6 p-6">
-      <div className="flex items-center justify-between">
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 p-6">
+      <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <div className="label">One-time setup</div>
-          <h1 className="text-3xl font-light">Astronaut enrollment</h1>
+          <h1 className="display text-[clamp(2.75rem,6vw,5.5rem)]">Astronaut enrollment</h1>
+          <p className="mt-3 text-lg text-ink-soft">One-time setup. After this, the booth recognizes you on its own.</p>
         </div>
         <Link to="/" className="btn-ghost">
-          <ArrowLeft size={16} /> Back to booth
+          <ArrowLeft size={17} /> Back to booth
         </Link>
       </div>
-      {error && <div className="rounded-xl border border-alert/40 bg-alert/10 p-3 text-sm text-alert">{error}</div>}
+      {error && <div className="flex items-center gap-2 rounded-[20px] bg-sheet px-5 py-3 text-[15px] text-st-urgent" role="alert"><StatusMark level="urgent" size={15} /> {error}</div>}
 
       {step === "choose" && (
-        <div className="grid gap-5 md:grid-cols-2">
-          <section className="panel p-5">
-            <h2 className="flex items-center gap-2 text-lg font-semibold">
-              <UserPlus size={18} /> Register a new astronaut
-            </h2>
-            <p className="mt-1 text-sm text-ink-muted">Create a profile, then capture facial reference data with the webcam.</p>
-            <button className="btn-primary mt-4" onClick={() => setStep("form")}>
-              Start registration
-            </button>
+        <div className="grid items-start gap-5 md:grid-cols-[1fr_1.15fr]">
+          <section className="relative px-[9%] py-[12%]">
+            <Lobe seed={53} swell={0.12} square={0.55} className="-inset-x-[2%] inset-y-0" />
+            <div className="relative">
+              <UserPlus size={28} />
+              <h2 className="mt-3 text-[clamp(2rem,3.2vw,2.75rem)] leading-[1] tracking-[-0.05em]">Register a new astronaut</h2>
+              <p className="mt-3 max-w-[30ch] text-lg leading-snug">Create a profile, then capture facial reference data with the webcam.</p>
+              <button className="btn-primary mt-5 px-6 text-[17px]" onClick={() => setStep("form")}>
+                Start registration
+              </button>
+            </div>
           </section>
-          <section className="panel p-5">
-            <h2 className="flex items-center gap-2 text-lg font-semibold">
-              <ScanFace size={18} /> Enroll a face for an existing profile
+          <section className="sheet p-6">
+            <h2 className="flex items-center gap-2 text-[24px] leading-tight tracking-[-0.035em]">
+              <ScanFace size={22} className="shrink-0" /> Enroll a face for an existing profile
             </h2>
-            <p className="mt-1 text-sm text-ink-muted">
+            <p className="mt-1 text-[15px] leading-snug text-ink-soft">
               Seeded demo astronauts have synthetic history but no face. Link a real person's face to one of them. {operator ? "Operator session active: re-enrollment allowed." : "Already-enrolled profiles require an authorized operator."}
             </p>
-            <ul className="mt-3 divide-y divide-line">
+            <ul className="mt-3 divide-y divide-rule">
               {roster.map((r) => (
-                <li key={r.id} className="flex items-center justify-between py-2">
+                <li key={r.id} className="flex items-center justify-between gap-3 py-2.5">
                   <div>
-                    <div className="text-sm font-medium">{r.display_name}</div>
-                    <div className="font-mono text-[11px] text-ink-faint">
+                    <div className="text-[17px]">{r.display_name}</div>
+                    <div className="text-[13px] text-ink-soft">
                       {r.id} · {r.role}
                     </div>
                   </div>
                   {r.face_enrolled && !operator ? (
-                    <span className="chip bg-ok/10 text-ok">enrolled</span>
+                    <span className="chip bg-cap-lilac">enrolled</span>
                   ) : (
-                    <button className="btn-ghost px-3 py-1.5 text-xs" onClick={() => claim(r.id)}>
+                    <button className="btn-ghost min-h-[40px] shrink-0 px-4 text-[15px]" onClick={() => claim(r.id)}>
                       {r.face_enrolled ? "Re-enroll" : "Enroll face"}
                     </button>
                   )}
@@ -114,13 +118,14 @@ export default function EnrollPage() {
       )}
 
       {step === "done" && astro && (
-        <motion.section initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="panel flex flex-col items-center gap-4 p-10 text-center">
-          <CheckCircle2 size={56} className="text-ok" />
-          <h2 className="text-2xl font-semibold">Enrollment complete</h2>
-          <p className="max-w-md text-ink-muted">
+        <motion.section initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="relative flex flex-col items-center gap-4 px-6 py-24 text-center">
+          <Lobe seed={61} swell={0.12} square={0.35} hole={{ cx: 50, cy: 50, rx: 32, ry: 30 }} />
+          <CheckCircle2 size={56} className="relative" />
+          <h2 className="display relative text-[clamp(2.5rem,5vw,4.5rem)]">Enrollment complete</h2>
+          <p className="relative max-w-[34ch] text-lg leading-snug text-ink">
             {astro.display_name} can now walk up to the booth and will be recognized automatically. No login or profile selection is needed.
           </p>
-          <Link to="/" className="btn-primary px-6 py-3">
+          <Link to="/" className="btn-primary relative px-6 py-3 text-[17px]">
             Return to booth stand-by
           </Link>
         </motion.section>
@@ -135,7 +140,7 @@ function RegistrationForm({ onCreated, onCancel, onError }: { onCreated: (a: Ast
   const set = (k: keyof typeof f) => (e: ChangeEvent<HTMLInputElement>) => setF({ ...f, [k]: e.target.type === "checkbox" ? e.target.checked : e.target.value });
   return (
     <form
-      className="panel grid gap-4 p-5 md:grid-cols-2"
+      className="sheet grid gap-5 p-6 md:grid-cols-2"
       onSubmit={async (e) => {
         e.preventDefault();
         setBusy(true);
@@ -149,28 +154,28 @@ function RegistrationForm({ onCreated, onCancel, onError }: { onCreated: (a: Ast
         }
       }}
     >
-      <label className="flex flex-col gap-1 text-sm">
+      <label className="flex flex-col gap-1.5 text-[15px]">
         Full name
         <input className="input" required minLength={2} value={f.full_name} onChange={set("full_name")} />
       </label>
-      <label className="flex flex-col gap-1 text-sm">
+      <label className="flex flex-col gap-1.5 text-[15px]">
         Preferred name (used by ASTRA's voice)
         <input className="input" value={f.preferred_name} onChange={set("preferred_name")} placeholder="e.g. Sam" />
       </label>
-      <label className="flex flex-col gap-1 text-sm">
+      <label className="flex flex-col gap-1.5 text-[15px]">
         Title
         <input className="input" value={f.title} onChange={set("title")} placeholder="e.g. Commander, Dr." />
       </label>
-      <label className="flex flex-col gap-1 text-sm">
+      <label className="flex flex-col gap-1.5 text-[15px]">
         Mission role
         <input className="input" required value={f.role} onChange={set("role")} />
       </label>
-      <label className="flex flex-col gap-1 text-sm">
+      <label className="flex flex-col gap-1.5 text-[15px]">
         Date of birth (optional)
         <input className="input" type="date" value={f.date_of_birth} onChange={set("date_of_birth")} />
       </label>
-      <label className="flex items-start gap-2 self-end text-sm text-ink-muted">
-        <input type="checkbox" className="mt-1" checked={f.generate_demo_history} onChange={set("generate_demo_history")} />
+      <label className="flex items-start gap-3 self-end text-[15px] leading-snug text-ink-soft">
+        <input type="checkbox" className="mt-0.5 h-5 w-5 shrink-0" checked={f.generate_demo_history} onChange={set("generate_demo_history")} />
         Generate 21 days of clearly-labelled synthetic history so personalized baselines can be demonstrated immediately.
       </label>
       <div className="flex gap-2 md:col-span-2">
@@ -255,30 +260,33 @@ function FaceCapture({ ticket, astronaut, onDone, onError }: { ticket: string; a
   const pct = res ? (res.captured / res.needed) * 100 : 0;
   return (
     <section className="grid gap-5 md:grid-cols-[1.4fr_1fr]">
-      <CameraView camera={camera} boxes={(res?.faces ?? []).map((f) => f.bbox)} boxColor={res?.accepted ? "#4ade80" : "#fbbf24"} className="aspect-[4/3]" scanning label={`Enrolling ${astronaut.display_name}`} />
-      <div className="panel flex flex-col gap-4 p-5">
-        <div className="label">Facial enrollment</div>
-        <h2 className="text-2xl font-medium">{prompt}</h2>
-        <p className={`text-sm ${res?.accepted ? "text-ok" : "text-caution"}`}>{res?.message ?? "Waiting for the camera…"}</p>
-        <div>
-          <div className="mb-1 flex justify-between font-mono text-xs text-ink-muted">
-            <span>captures</span>
+      <CameraView camera={camera} boxes={(res?.faces ?? []).map((f) => f.bbox)} boxColor={res?.accepted ? "#8ED462" : "#F5E211"} className="aspect-[4/3]" scanning label={`Enrolling ${astronaut.display_name}`} />
+      <div className="relative flex flex-col gap-4 px-[9%] py-[8%]">
+        <Lobe seed={67} swell={0.08} square={0.8} className="-inset-x-[3%] -inset-y-[2%]" />
+        <h2 className="display relative text-[clamp(2rem,3.4vw,3rem)]">{prompt}</h2>
+        <p className="relative flex items-center gap-2 text-lg">
+          {res?.accepted && <CheckCircle2 size={20} />}
+          {res?.message ?? "Waiting for the camera…"}
+        </p>
+        <div className="relative">
+          <div className="mb-1.5 flex justify-between text-[15px]">
+            <span>Captures</span>
             <span>
               {res?.captured ?? 0}/{res?.needed ?? 6}
             </span>
           </div>
-          <div className="h-2 overflow-hidden rounded-full bg-white/10">
-            <div className="h-full bg-ok transition-all" style={{ width: `${pct}%` }} />
+          <div className="h-3 overflow-hidden rounded-full bg-sheet">
+            <div className="h-full rounded-full bg-ink transition-all" style={{ width: `${pct}%` }} />
           </div>
         </div>
-        {finishing && <p className="text-sm text-cyan-soft">Saving biometric templates…</p>}
-        <ul className="mt-auto space-y-1 text-xs text-ink-faint">
-          <li>• Only 128-number face embeddings and geometry measurements are stored, locally in SQLite.</li>
-          <li>• No photos are saved. Templates can be deleted by an authorized operator.</li>
-          <li>• Frontal captures also become your facial-geometry reference for later change detection.</li>
+        {finishing && <p className="relative w-fit rounded-full bg-cap-yellow px-4 py-1.5 text-[15px]">Saving biometric templates…</p>}
+        <ul className="relative mt-auto list-disc space-y-1 pl-5 text-[13px] leading-snug text-ink">
+          <li>Only 128-number face embeddings and geometry measurements are stored, locally in SQLite.</li>
+          <li>No photos are saved. Templates can be deleted by an authorized operator.</li>
+          <li>Frontal captures also become your facial-geometry reference for later change detection.</li>
         </ul>
         <button
-          className="btn-ghost"
+          className="btn-ghost relative w-fit"
           onClick={async () => {
             await api.enrollCancel(ticket).catch(() => undefined);
             window.location.assign("/enroll");

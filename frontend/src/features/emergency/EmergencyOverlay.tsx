@@ -90,24 +90,24 @@ export function EmergencyOverlay() {
   const resolved = event.status === "resolved";
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-[#0b0306]/95 backdrop-blur-sm" role="alertdialog" aria-labelledby="em-title">
+    <div className={`fixed inset-0 z-50 overflow-y-auto ${resolved ? "bg-water" : "bg-st-urgent"}`} role="alertdialog" aria-labelledby="em-title">
       <div className="mx-auto flex min-h-full max-w-6xl flex-col gap-5 p-5 md:p-8">
-        <header className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <span className={`flex h-11 w-11 items-center justify-center rounded-full ${resolved ? "bg-ok/20 text-ok" : "bg-alert/20 text-alert"}`}>
-              {resolved ? <CheckCircle2 /> : <AlertTriangle />}
+        <header className={`flex flex-wrap items-center justify-between gap-4 ${resolved ? "text-ink" : "text-white"}`}>
+          <div className="flex items-center gap-4">
+            <span className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full ${resolved ? "bg-st-clear text-white" : "bg-white text-st-urgent"}`}>
+              {resolved ? <CheckCircle2 size={28} /> : <AlertTriangle size={28} />}
             </span>
             <div>
-              <div className="label text-alert">{resolved ? "Emergency resolved" : "Emergency active"}</div>
-              <h1 id="em-title" className="text-2xl font-semibold md:text-3xl">
+              <h1 id="em-title" className="text-[clamp(2.25rem,4.6vw,4.25rem)] leading-map tracking-map">
                 {proto?.title ?? "Medical emergency"}
               </h1>
+              <p className="mt-2 text-lg">{resolved ? "Emergency resolved" : "Emergency active · all crew alerted"}</p>
             </div>
           </div>
           <div className="flex gap-2">
             {!resolved && (
-              <button className="btn-ghost" onClick={async () => setEvent(await api.emergencyResolve(event.id))}>
-                <CheckCircle2 size={16} /> Mark resolved
+              <button className="btn-ghost ring-0" onClick={async () => setEvent(await api.emergencyResolve(event.id))}>
+                <CheckCircle2 size={17} /> Mark resolved
               </button>
             )}
             {resolved && (
@@ -119,64 +119,65 @@ export function EmergencyOverlay() {
         </header>
 
         {!resolved && proto && (
-          <div className="rounded-2xl border-2 border-alert/60 bg-alert/10 p-5">
-            <div className="label text-alert">Immediate priority</div>
-            <p className="mt-1 text-2xl font-semibold md:text-3xl">{proto.priority_action}</p>
+          <div className="rounded-[28px] bg-cap-yellow px-6 py-5">
+            <p className="text-[clamp(1.75rem,3vw,2.75rem)] leading-[1.05] tracking-[-0.04em]">{proto.priority_action}</p>
           </div>
         )}
 
         <div className="grid gap-5 lg:grid-cols-[1.4fr_1fr]">
-          <section className="panel border-alert/30 p-5">
-            <div className="flex items-center justify-between">
-              <span className="label">
+          <section className="sheet p-6">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="chip bg-ink text-white">
                 Step {event.current_step + 1} of {proto?.steps.length ?? 0}
               </span>
-              <span className="label text-ink-faint">Demonstration protocol · follow approved onboard procedures</span>
+              <span className="label">Demonstration protocol · follow approved onboard procedures</span>
             </div>
             {current && (
-              <div className="mt-3">
-                <h2 className="text-2xl font-semibold">{current.title}</h2>
-                <p className="mt-2 text-xl leading-relaxed text-ink">{current.instruction}</p>
+              <div className="mt-4">
+                <h2 className="text-[32px] leading-tight tracking-[-0.04em]">{current.title}</h2>
+                <p className="mt-2 text-2xl leading-snug text-ink">{current.instruction}</p>
               </div>
             )}
-            <ol className="mt-5 space-y-1.5">
+            <ol className="mt-5 space-y-1">
               {proto?.steps.map((s, i) => (
-                <li key={i} className={`flex gap-3 text-sm ${i === event.current_step ? "text-ink" : i < event.current_step ? "text-ink-faint line-through" : "text-ink-muted"}`}>
-                  <span className="font-mono">{String(i + 1).padStart(2, "0")}</span>
+                <li key={i} className={`flex gap-3 rounded-full px-3 py-1.5 text-[15px] ${i === event.current_step ? "bg-cap-yellow text-ink" : i < event.current_step ? "text-ink-soft line-through" : "text-ink"}`}>
+                  <span className="w-5 shrink-0">{i + 1}</span>
                   {s.title}
                 </li>
               ))}
             </ol>
             <div className="mt-5 flex gap-3">
               <button className="btn-ghost" onClick={() => step("back")} disabled={event.current_step === 0 || resolved}>
-                <ChevronLeft size={16} /> Back
+                <ChevronLeft size={17} /> Back
               </button>
-              <button className="btn-danger flex-1 py-3 text-base" onClick={() => step("next")} disabled={resolved || event.current_step >= (proto?.steps.length ?? 1) - 1}>
-                Next step <ChevronRight size={16} />
+              <button className="btn-danger flex-1 py-3.5 text-lg" onClick={() => step("next")} disabled={resolved || event.current_step >= (proto?.steps.length ?? 1) - 1}>
+                Next step <ChevronRight size={18} />
               </button>
             </div>
-            <p className="mt-3 text-xs text-ink-faint">Voice: “next”, “back”, “repeat”, “resolved”, or describe the situation (“collapsed”, “chest pain”, “breathing”, “bleeding”).</p>
+            <p className="mt-3 text-[13px] text-ink-soft">Voice: “next”, “back”, “repeat”, “resolved”, or describe the situation (“collapsed”, “chest pain”, “breathing”, “bleeding”).</p>
           </section>
 
           <aside className="flex flex-col gap-4">
-            <div className="panel p-4">
-              <div className="flex items-center gap-2 label">
-                <Users size={14} /> Crew notification
-              </div>
-              <p className="mt-2 text-lg text-ok">All crew alerted {event.crew_alerted_at ? new Date(event.crew_alerted_at).toLocaleTimeString() : ""}</p>
-              <p className="text-xs text-ink-faint">Simulated cabin-wide alarm and crew-device notification.</p>
+            <div className="sheet p-5">
+              <h3 className="sheet-title flex items-center gap-2">
+                <Users size={17} /> Crew notification
+              </h3>
+              <p className="mt-2 flex items-center gap-2 text-xl">
+                <CheckCircle2 size={20} className="text-st-clear" /> All crew alerted {event.crew_alerted_at ? new Date(event.crew_alerted_at).toLocaleTimeString() : ""}
+              </p>
+              <p className="text-[13px] text-ink-soft">Simulated cabin-wide alarm and crew-device notification.</p>
             </div>
-            <div className="panel p-4">
-              <div className="flex items-center gap-2 label">
-                <Satellite size={14} /> Mission Control
-              </div>
-              <p className="mt-2 text-lg">{event.message ? STATUS_TEXT[event.message.status] : "Preparing report"}</p>
-              <p className="text-xs text-ink-faint">
+            <div className="sheet p-5">
+              <h3 className="sheet-title flex items-center gap-2">
+                <Satellite size={17} /> Mission Control
+              </h3>
+              <p className="mt-2 text-xl">{event.message ? STATUS_TEXT[event.message.status] : "Preparing report"}</p>
+              <p className="text-[13px] text-ink-soft">
                 Earth link {event.link.link_up ? `up · one-way delay ${event.link.delay_s}s` : "DOWN — report stays queued; onboard guidance continues"}
               </p>
             </div>
-            <div className="panel p-4">
-              <div className="label">Patient</div>
+            <div className="sheet p-5">
+              <h3 className="sheet-title">Patient</h3>
               <select
                 className="input mt-2"
                 value={event.patient?.id ?? ""}
@@ -191,28 +192,29 @@ export function EmergencyOverlay() {
                 ))}
               </select>
               {event.patient && (
-                <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
+                <div className="mt-3 grid grid-cols-2 gap-3">
                   {Object.entries(event.patient.latest_vitals)
                     .slice(0, 6)
                     .map(([k, v]) => (
                       <div key={k}>
-                        <div className="text-[11px] text-ink-faint">{v.label}</div>
-                        <div className="font-mono">
+                        <div className="text-[13px] text-ink-soft">{v.label}</div>
+                        <div className="text-xl tabular-nums tracking-[-0.03em]">
                           {v.value} {v.unit}
                         </div>
                       </div>
                     ))}
-                  <p className="col-span-2 text-[11px] text-ink-faint">Most recent stored readings (simulated). Not live monitoring.</p>
+                  <p className="col-span-2 text-[13px] text-ink-soft">Most recent stored readings (simulated). Not live monitoring.</p>
                 </div>
               )}
             </div>
-            <div className="panel p-4">
-              <div className="label">Situation</div>
+            <div className="sheet p-5">
+              <h3 className="sheet-title">Situation</h3>
               <div className="mt-2 grid grid-cols-2 gap-2">
                 {protocols.map((p) => (
                   <button
                     key={p.id}
-                    className={`rounded-lg border px-2 py-2 text-left text-xs ${p.id === proto?.id ? "border-alert text-alert" : "border-line text-ink-muted hover:text-ink"}`}
+                    className={`rounded-[18px] px-3 py-2.5 text-left text-[13px] leading-snug ${p.id === proto?.id ? "bg-ink text-white" : "bg-water text-ink hover:bg-cap-yellow/50"}`}
+                    aria-pressed={p.id === proto?.id}
                     onClick={async () => setEvent(await api.emergencyProtocol(event.id, p.id, event.patient?.id))}
                   >
                     {p.title}
@@ -222,13 +224,13 @@ export function EmergencyOverlay() {
             </div>
           </aside>
         </div>
-        <div className="flex flex-col items-center gap-3 pb-6">
+        <div className="sheet flex flex-col items-center gap-3 p-5 pb-6">
           <VoiceOrb size={70} />
           <div className="w-full max-w-2xl">
             <Captions max={2} />
           </div>
-          <div className="flex items-center gap-2 text-xs text-ink-faint">
-            <Radio size={12} /> Runs fully offline. Decision support only — not a certified medical device.
+          <div className="flex items-center gap-2 text-[13px] text-ink-soft">
+            <Radio size={14} /> Runs fully offline. Decision support only — not a certified medical device.
           </div>
         </div>
       </div>

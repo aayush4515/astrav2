@@ -9,6 +9,7 @@ export interface BoothDevice {
   real: boolean;
   /** Where the camera looks when this device is active. */
   focus: [number, number, number];
+  /** Capsule colour from the world palette; text on it is always ink. */
   color: string;
 }
 
@@ -21,7 +22,7 @@ export const BOOTH_DEVICES: Record<DeviceId, BoothDevice> = {
     measures: "Identity · eyelid opening · facial symmetry · brow and mouth alignment",
     real: true,
     focus: [0, 1.62, 0],
-    color: "#5ee7ff",
+    color: "#2BA0FF",
   },
   thermal_module: {
     id: "thermal_module",
@@ -31,7 +32,7 @@ export const BOOTH_DEVICES: Record<DeviceId, BoothDevice> = {
     measures: "Body temperature · breathing rate",
     real: false,
     focus: [0.6, 1.5, 0.2],
-    color: "#fb923c",
+    color: "#FF705D",
   },
   wearable_sync: {
     id: "wearable_sync",
@@ -41,7 +42,7 @@ export const BOOTH_DEVICES: Record<DeviceId, BoothDevice> = {
     measures: "Sleep duration · sleep efficiency · resting heart rate · HRV · exercise minutes",
     real: false,
     focus: [-0.45, 1.0, 0.2],
-    color: "#a78bfa",
+    color: "#C58AF0",
   },
   vitals_module: {
     id: "vitals_module",
@@ -51,7 +52,7 @@ export const BOOTH_DEVICES: Record<DeviceId, BoothDevice> = {
     measures: "Heart rate · blood pressure · blood oxygen (SpO₂)",
     real: false,
     focus: [0.45, 1.15, 0.1],
-    color: "#f472b6",
+    color: "#FF705D",
   },
   mass_module: {
     id: "mass_module",
@@ -61,7 +62,7 @@ export const BOOTH_DEVICES: Record<DeviceId, BoothDevice> = {
     measures: "Body mass (kg)",
     real: false,
     focus: [0, 0.85, 0],
-    color: "#4ade80",
+    color: "#8ED462",
   },
   e_nose: {
     id: "e_nose",
@@ -71,7 +72,7 @@ export const BOOTH_DEVICES: Record<DeviceId, BoothDevice> = {
     measures: "Skin VOC fingerprint (experimental)",
     real: false,
     focus: [-0.75, 1.1, 0.35],
-    color: "#facc15",
+    color: "#F5E211",
   },
   blood_analyzer: {
     id: "blood_analyzer",
@@ -81,7 +82,7 @@ export const BOOTH_DEVICES: Record<DeviceId, BoothDevice> = {
     measures: "Hemoglobin · hematocrit · glucose · WBC · lymphocytes",
     real: false,
     focus: [1.15, 1.0, 0.35],
-    color: "#f87171",
+    color: "#FF705D",
   },
   environment: {
     id: "environment",
@@ -91,6 +92,6 @@ export const BOOTH_DEVICES: Record<DeviceId, BoothDevice> = {
     measures: "CO₂ · ppO₂ · temperature · humidity · radiation",
     real: false,
     focus: [-1.1, 2.0, -0.4],
-    color: "#38bdf8",
+    color: "#2BA0FF",
   },
 };

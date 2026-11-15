@@ -43,6 +43,6 @@ describe("UI components", () => {
       </MemoryRouter>,
     );
     expect(screen.getByText(/WebGL disabled/)).toBeInTheDocument();
-    expect(screen.getByText(/● Vitals/)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Active: Vitals/ })).toBeInTheDocument();
   });
 });

@@ -1,0 +1,483 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-15T06:08:24.377834+00:00",
+  "title": "Design System: ASTRA",
+  "extensions": {
+    "colorMeta": {
+      "water": {
+        "role": "neutral",
+        "displayName": "Cream Water",
+        "canonical": "#F5F1E4",
+        "oklch": "oklch(95.8% 0.018 93)",
+        "tonalRamp": [
+          "#0C0B08",
+          "#282621",
+          "#47453D",
+          "#69665C",
+          "#8C897F",
+          "#B0AEA6",
+          "#D3D1CB",
+          "#F0EEEA"
+        ]
+      },
+      "land": {
+        "role": "primary",
+        "displayName": "Map Land Green",
+        "canonical": "#8ED462",
+        "oklch": "oklch(79.9% 0.164 135)",
+        "tonalRamp": [
+          "#021000",
+          "#112F00",
+          "#255200",
+          "#3B7800",
+          "#629B3C",
+          "#90BE76",
+          "#BBDDA9",
+          "#DFF7D3"
+        ]
+      },
+      "sheet": {
+        "role": "neutral",
+        "displayName": "Sheet White",
+        "canonical": "#FFFFFF",
+        "oklch": "oklch(100.0% 0.000 90)",
+        "tonalRamp": [
+          "#0B0B0B",
+          "#262626",
+          "#454545",
+          "#666666",
+          "#898989",
+          "#AEAEAE",
+          "#D1D1D1",
+          "#EEEEEE"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Map Ink",
+        "canonical": "#2C2E2A",
+        "oklch": "oklch(29.8% 0.008 129)",
+        "tonalRamp": [
+          "#0B0B0A",
+          "#262725",
+          "#444642",
+          "#656763",
+          "#888A86",
+          "#ADAEAB",
+          "#D0D1CF",
+          "#EEEFED"
+        ]
+      },
+      "ink-soft": {
+        "role": "neutral",
+        "displayName": "Soft Ink",
+        "canonical": "#4A4D46",
+        "oklch": "oklch(41.5% 0.012 126)",
+        "tonalRamp": [
+          "#0B0B0A",
+          "#262724",
+          "#444641",
+          "#646760",
+          "#878A84",
+          "#ACAFA9",
+          "#D0D2CE",
+          "#EEEFEC"
+        ]
+      },
+      "ink-faint": {
+        "role": "neutral",
+        "displayName": "Faint Ink",
+        "canonical": "#5E6158",
+        "oklch": "oklch(48.7% 0.015 122)",
+        "tonalRamp": [
+          "#0B0B09",
+          "#262723",
+          "#444640",
+          "#65675F",
+          "#888A82",
+          "#ADAFA8",
+          "#D0D2CD",
+          "#EEEFEB"
+        ]
+      },
+      "capsule-yellow": {
+        "role": "secondary",
+        "displayName": "Route Yellow",
+        "canonical": "#F5E211",
+        "oklch": "oklch(90.0% 0.187 103)",
+        "tonalRamp": [
+          "#100B00",
+          "#302600",
+          "#544500",
+          "#7A6700",
+          "#9C8B00",
+          "#BCB14A",
+          "#DBD48E",
+          "#F5F1C1"
+        ]
+      },
+      "capsule-coral": {
+        "role": "secondary",
+        "displayName": "Signal Coral",
+        "canonical": "#FF705D",
+        "oklch": "oklch(71.6% 0.178 30)",
+        "tonalRamp": [
+          "#1E0000",
+          "#4B0B06",
+          "#7C1E14",
+          "#B13225",
+          "#D65E4E",
+          "#F09081",
+          "#FFBCB0",
+          "#FFE0D7"
+        ]
+      },
+      "capsule-blue": {
+        "role": "secondary",
+        "displayName": "Sky Blue",
+        "canonical": "#2BA0FF",
+        "oklch": "oklch(68.9% 0.171 249)",
+        "tonalRamp": [
+          "#000B22",
+          "#002750",
+          "#004684",
+          "#0068BC",
+          "#2F8EDE",
+          "#72B4F3",
+          "#A7D6FF",
+          "#D1F3FF"
+        ]
+      },
+      "capsule-lilac": {
+        "role": "secondary",
+        "displayName": "Soft Lilac",
+        "canonical": "#EBC1FF",
+        "oklch": "oklch(86.7% 0.095 315)",
+        "tonalRamp": [
+          "#100714",
+          "#301E37",
+          "#53395F",
+          "#795689",
+          "#9C7AAC",
+          "#BDA2CA",
+          "#DCC9E6",
+          "#F7E9FE"
+        ]
+      },
+      "status-clear": {
+        "role": "tertiary",
+        "displayName": "Forest Clear",
+        "canonical": "#1E6B35",
+        "oklch": "oklch(46.8% 0.113 149)",
+        "tonalRamp": [
+          "#010F04",
+          "#0C2E15",
+          "#1F512C",
+          "#337644",
+          "#5C9A69",
+          "#8CBC94",
+          "#B9DCBE",
+          "#DEF6E1"
+        ]
+      },
+      "status-watch": {
+        "role": "tertiary",
+        "displayName": "Ochre Watch",
+        "canonical": "#8A5A00",
+        "oklch": "oklch(50.8% 0.108 73)",
+        "tonalRamp": [
+          "#140800",
+          "#372100",
+          "#5E3D06",
+          "#885C13",
+          "#AB8045",
+          "#CAA77B",
+          "#E6CCAC",
+          "#FEEBD5"
+        ]
+      },
+      "status-review": {
+        "role": "tertiary",
+        "displayName": "Rust Review",
+        "canonical": "#B23E0A",
+        "oklch": "oklch(52.3% 0.160 40)",
+        "tonalRamp": [
+          "#1C0200",
+          "#471200",
+          "#762806",
+          "#AA3F13",
+          "#CE6844",
+          "#E8967A",
+          "#FEC0AB",
+          "#FFE3D4"
+        ]
+      },
+      "status-urgent": {
+        "role": "tertiary",
+        "displayName": "Signal Red",
+        "canonical": "#C8102E",
+        "oklch": "oklch(53.0% 0.207 22)",
+        "tonalRamp": [
+          "#210001",
+          "#50000A",
+          "#84071B",
+          "#BC182D",
+          "#E15155",
+          "#F98885",
+          "#FFB7B3",
+          "#FFDDD9"
+        ]
+      },
+      "rule": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "rgba(44, 46, 42, 0.14)"
+      },
+      "capsule-yellow-hover": {
+        "role": "secondary",
+        "displayName": "Pressed Yellow",
+        "canonical": "#E3D100"
+      },
+      "status-urgent-hover": {
+        "role": "tertiary",
+        "displayName": "Pressed Red",
+        "canonical": "#A80D26"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "The one statement on a lobe; size is fluid per screen, from about 2rem to 6.75rem."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Emergency step titles, status band text, priority action, detail titles."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Wordmark, crew names, section titles."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Base 17px copy."
+      },
+      "body-lead": {
+        "displayName": "Lead",
+        "purpose": "Lobe paragraphs, about 34ch."
+      },
+      "control": {
+        "displayName": "Control",
+        "purpose": "Buttons, inputs, capsules, captions."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "13px sentence-case metadata in Soft Ink."
+      },
+      "readout": {
+        "displayName": "Readout",
+        "purpose": "Numeric values only; tabular figures, 24 to 44px."
+      }
+    },
+    "shadows": [
+      {
+        "name": "drawer-cast",
+        "value": "-16px 0 48px rgba(44,46,42,0.22)",
+        "purpose": "Details drawer over the check-in screen, above a 40% ink scrim."
+      },
+      {
+        "name": "hover-lift",
+        "value": "0 8px 24px rgba(44,46,42,0.14)",
+        "purpose": "Selectable Mission Control crew cards, hover only."
+      }
+    ],
+    "motion": [
+      {
+        "name": "lobe-settle",
+        "value": "0.4s cubic-bezier(0.34, 1.56, 0.64, 1), from scale 0.94 and opacity 0",
+        "purpose": "The world's only added motion: lobes settle on mount; skipped under reduced motion."
+      },
+      {
+        "name": "breathe",
+        "value": "3.2s ease-in-out infinite, opacity 0.55 to 1",
+        "purpose": "Live indicator dots (pre-existing)."
+      },
+      {
+        "name": "scan",
+        "value": "2.4s linear infinite translateY",
+        "purpose": "Camera scan line (pre-existing)."
+      },
+      {
+        "name": "drawer-spring",
+        "value": "spring damping 30, stiffness 260",
+        "purpose": "Details drawer slide (pre-existing)."
+      },
+      {
+        "name": "step-fill",
+        "value": "0.5s ease-out width",
+        "purpose": "Route step fill (pre-existing)."
+      },
+      {
+        "name": "headline-swap",
+        "value": "0.35s, y 10px to 0",
+        "purpose": "Stand-by headline change (pre-existing)."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      },
+      {
+        "name": "xl",
+        "value": "1280px"
+      }
+    ],
+    "openItems": [
+      "drei Stars in the 3D booth still render faint white specks on cream water; left as is because tinting or removing them changes existing motion.",
+      "Summary and crew-card status bands now carry StatusMark shapes."
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Yellow capsule for the main action on a screen.",
+      "html": "<button class=\"ds-btn-primary\">Activate booth</button>",
+      "css": ".ds-btn-primary{font-family:'Inter Variable',Inter,system-ui,sans-serif;font-weight:600;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:10px 20px;border:none;border-radius:9999px;background:#F5E211;color:#2C2E2A;font-size:15px;transition:background-color .15s;cursor:pointer}.ds-btn-primary:hover{background:#E3D100}.ds-btn-primary:focus-visible{outline:3px solid #2C2E2A;outline-offset:3px}"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "White capsule with a hairline ring for secondary actions.",
+      "html": "<button class=\"ds-btn-ghost\">End session</button>",
+      "css": ".ds-btn-ghost{font-family:'Inter Variable',Inter,system-ui,sans-serif;font-weight:600;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:10px 20px;border:none;border-radius:9999px;background:#FFFFFF;color:#2C2E2A;font-size:15px;box-shadow:inset 0 0 0 1px rgba(44,46,42,0.14);transition:background-color .15s;cursor:pointer}.ds-btn-ghost:hover{background:rgba(245,226,17,0.4)}.ds-btn-ghost:focus-visible{outline:3px solid #2C2E2A;outline-offset:3px}"
+    },
+    {
+      "name": "Danger Button",
+      "kind": "button",
+      "refersTo": "button-danger",
+      "description": "Signal-red capsule reserved for Emergency controls.",
+      "html": "<button class=\"ds-btn-danger\"><svg width=\"17\" height=\"17\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z\"/><path d=\"M12 8v4\"/><path d=\"M12 16h.01\"/></svg>Emergency</button>",
+      "css": ".ds-btn-danger{font-family:'Inter Variable',Inter,system-ui,sans-serif;font-weight:600;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:10px 20px;border:none;border-radius:9999px;background:#C8102E;color:#FFFFFF;font-size:15px;transition:background-color .15s;cursor:pointer}.ds-btn-danger:hover{background:#A80D26}.ds-btn-danger:focus-visible{outline:3px solid #2C2E2A;outline-offset:3px}"
+    },
+    {
+      "name": "Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "White capsule field with a hairline ring that thickens to ink on focus.",
+      "html": "<input class=\"ds-input\" placeholder=\"Display name\">",
+      "css": ".ds-input{font-family:'Inter Variable',Inter,system-ui,sans-serif;font-weight:600;min-height:44px;width:100%;padding:10px 20px;border:none;border-radius:9999px;background:#FFFFFF;color:#2C2E2A;font-size:15px;box-shadow:inset 0 0 0 1px rgba(44,46,42,0.14)}.ds-input::placeholder{color:#5E6158}.ds-input:focus{outline:none;box-shadow:inset 0 0 0 2px #2C2E2A}"
+    },
+    {
+      "name": "Mission Capsules",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Row of colored fact capsules at the lobe's foot; ink text on every color.",
+      "html": "<div class=\"ds-chips\"><span class=\"ds-chip\" style=\"background:#F5E211\">Crew enrolled 4 / 4</span><span class=\"ds-chip\" style=\"background:#2BA0FF\">Earth link 1200s delay</span><span class=\"ds-chip\" style=\"background:#EBC1FF\">Cabin CO2 2900 ppm</span><span class=\"ds-chip\" style=\"background:#FFFFFF\">Dose rate 0.6 mSv/d</span></div>",
+      "css": ".ds-chips{display:flex;flex-wrap:wrap;gap:8px}.ds-chip{font-family:'Inter Variable',Inter,system-ui,sans-serif;font-weight:600;display:inline-flex;align-items:center;gap:8px;padding:8px 16px 8px 12px;border-radius:9999px;color:#2C2E2A;font-size:15px}"
+    },
+    {
+      "name": "Route Steps",
+      "kind": "nav",
+      "refersTo": "chip",
+      "description": "Capsule progress tracks: lilac done, coral current with label, white todo.",
+      "html": "<ol class=\"ds-steps\"><li class=\"ds-step done\"></li><li class=\"ds-step done\"></li><li class=\"ds-step current\"><span class=\"ds-dot\"></span>Sensors</li><li class=\"ds-step\"></li><li class=\"ds-step\"></li></ol>",
+      "css": ".ds-steps{display:flex;gap:6px;align-items:center;list-style:none;margin:0;padding:0;width:420px}.ds-step{font-family:'Inter Variable',Inter,system-ui,sans-serif;font-weight:600;flex:1;height:12px;border-radius:9999px;background:#FFFFFF;display:flex;align-items:center;justify-content:center;gap:4px;font-size:13px;color:#2C2E2A}.ds-step.done{background:#EBC1FF}.ds-step.current{flex:3;height:36px;background:#FF705D}.ds-dot{width:8px;height:8px;border-radius:9999px;background:#2C2E2A}"
+    },
+    {
+      "name": "Glance Tile",
+      "kind": "card",
+      "refersTo": "glance-tile",
+      "description": "White tile with a status mark, label and tabular readout.",
+      "html": "<div class=\"ds-tile\"><div class=\"ds-tile-l\"><svg width=\"13\" height=\"13\" viewBox=\"0 0 16 16\"><path d=\"M8 1.5L15 14H1Z\" fill=\"#8A5A00\"/></svg>Heart rate</div><div class=\"ds-tile-v\">78<span>bpm</span></div></div>",
+      "css": ".ds-tile{font-family:'Inter Variable',Inter,system-ui,sans-serif;font-weight:600;background:#FFFFFF;border-radius:20px;padding:12px 16px;color:#2C2E2A;width:160px}.ds-tile-l{display:flex;align-items:center;gap:6px;font-size:15px;color:#4A4D46}.ds-tile-v{margin-top:6px;font-size:24px;line-height:1;letter-spacing:-0.04em;font-variant-numeric:tabular-nums}.ds-tile-v span{font-size:15px;letter-spacing:0;color:#4A4D46;margin-left:4px}"
+    },
+    {
+      "name": "Status Band",
+      "kind": "custom",
+      "refersTo": "status-band",
+      "description": "Result band in the status tone with a white StatusMark and words.",
+      "html": "<div class=\"ds-band\"><svg width=\"36\" height=\"36\" viewBox=\"0 0 16 16\"><path d=\"M8 0.8L15.2 8L8 15.2L0.8 8Z\" fill=\"#FFFFFF\"/></svg><div><div class=\"ds-band-t\">Notable change</div><div class=\"ds-band-s\">Assessment result · compared with your own baseline</div></div></div>",
+      "css": ".ds-band{font-family:'Inter Variable',Inter,system-ui,sans-serif;font-weight:600;display:flex;align-items:center;gap:16px;border-radius:24px;padding:16px 20px;background:#B23E0A;color:#FFFFFF}.ds-band-t{font-size:32px;line-height:1.02;letter-spacing:-0.04em}.ds-band-s{margin-top:4px;font-size:15px}"
+    },
+    {
+      "name": "Land Lobe",
+      "kind": "custom",
+      "refersTo": "land",
+      "description": "Signature flat green lobe on cream water carrying a display statement; settles with a 0.4s overshoot.",
+      "html": "<div class=\"ds-map\"><svg class=\"ds-lobe\" viewBox=\"0 0 100 100\" preserveAspectRatio=\"none\"><path d=\"M8 12C20 2 62 4 84 8C98 12 96 40 94 62C92 86 80 96 54 94C28 92 6 94 4 70C2 46 -2 20 8 12Z\" fill=\"#8ED462\"/></svg><p class=\"ds-display\">Your daily health check-in, hands-free.</p></div>",
+      "css": ".ds-map{position:relative;background:#F5F1E4;padding:40px;width:520px}.ds-lobe{position:absolute;inset:0;width:100%;height:100%;animation:ds-settle .4s cubic-bezier(0.34,1.56,0.64,1)}.ds-display{font-family:'Inter Variable',Inter,system-ui,sans-serif;font-weight:600;position:relative;margin:0;font-size:56px;line-height:0.95;letter-spacing:-0.06em;color:#2C2E2A}@keyframes ds-settle{from{transform:scale(.94);opacity:0}to{transform:scale(1);opacity:1}}@media (prefers-reduced-motion:reduce){.ds-lobe{animation:none}}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Guide Map",
+    "overview": "ASTRA is drawn like a printed guide map, not a mission console. Each screen is cream water with one flat, swelling land lobe in fresh green; the coastline does the dividing that rules and card borders would do elsewhere. What matters right now (one prompt, one reading, one result) sits on the land in huge ink type, and everything else is a white sheet or a colored capsule floating on the water. The build explicitly refuses the dark navy, glowing glass-card dashboard.\n\nThe voice is plain and confident: one grotesk at one weight, set very large and very tight for the thing being said, then dropping quickly to comfortable reading sizes. Color is cheerful but disciplined. Capsule colors mark controls and route steps; health status has its own sober, deep tones and is never carried by color alone. Density is low on the booth (an astronaut reads it from about a metre away) and moderate on the ground-staff desk screens, which share the same world.\n\nDepth is almost entirely flat. Land, water and sheets are unmodulated fills; the only shadows are the soft cast under the details drawer and a hover lift on selectable crew cards. Motion is inherited from the product and preserved; the world adds exactly one gesture, the lobe's overshoot settle.",
+    "keyCharacteristics": [
+      "One dominant land lobe per screen, on cream water, bleeding off an edge or opened in its middle.",
+      "Flat fills only: no gradients, glass, glow or texture on land, water or sheets.",
+      "Capsule (fully rounded) controls, chips and route steps; ink text on every capsule.",
+      "Inter at a single weight (600) everywhere; display set at 0.95 leading and -0.06em tracking.",
+      "Health status = deep status tone + StatusMark shape + words, always all three.",
+      "Emergency flips the whole screen to signal red."
+    ],
+    "rules": [
+      {
+        "name": "The Ink-On-Capsule Rule",
+        "body": "Text on every capsule (yellow, coral, blue, lilac, white) is Map Ink. Coral and blue carry labels only; they never fill body copy or large reading areas.",
+        "section": "colors"
+      },
+      {
+        "name": "The Land Is Not Health Rule",
+        "body": "Land green is territory, never meaning. Health status uses only the four deep status tones, and each appearance carries a StatusMark shape and words, so it never relies on color alone.",
+        "section": "colors"
+      },
+      {
+        "name": "The Red Means Emergency Rule",
+        "body": "Signal Red is reserved for urgent status and emergency controls and surfaces. It is never decorative.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Weight Rule",
+        "body": "Every glyph is weight 600. Tailwind's weight scale is remapped so light through bold all resolve to 600; hierarchy comes from size, tracking and color only.",
+        "section": "typography"
+      },
+      {
+        "name": "The Tabular-Only-For-Numbers Rule",
+        "body": "Tabular figures appear only on numeric readouts and tables. Inter's tnum widens hyphens and dashes, so it stays off running text and titles.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat Map Rule",
+        "body": "Nothing on the map is shaded at rest. No gradients, glows, glass or blur on land, water or sheets; a shadow appears only for an overlaying drawer or a hover response.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do give each screen one dominant land lobe on cream water, bleeding off an edge or opened in its middle, and let its coastline divide the screen.",
+      "Do set the single most important statement on the lobe in display type (0.95 leading, -0.06em) in Map Ink.",
+      "Do use Map Ink for text on every capsule, and keep coral and blue to short labels.",
+      "Do show health status as status tone plus StatusMark shape plus words, every time.",
+      "Do keep every glyph at weight 600 and use tabular figures only on numeric readouts.",
+      "Do keep controls at least 44px tall with the 3px ink focus outline.",
+      "Do skip the lobe settle under reduced motion, and leave existing animations as they are."
+    ],
+    "donts": [
+      "Don't use land green, or any capsule color, to mean healthy, normal or safe.",
+      "Don't shade the map: no gradients, glows, glass, blur or textured fills on land, water or sheets.",
+      "Don't use Signal Red except for urgent status and emergency controls or surfaces.",
+      "Don't introduce a second typeface or weight; Inter at 600 is the whole type system.",
+      "Don't turn the booth into a dark navy or glowing glass-card console.",
+      "Don't put small uppercase tracked labels above headings; labels are 13px sentence-case lines below or beside what they describe."
+    ]
+  }
+}

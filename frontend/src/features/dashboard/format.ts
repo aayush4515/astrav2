@@ -1,25 +1,25 @@
 import type { Severity, StatusLevel } from "../../types";
 
 export const STATUS_COLOR: Record<StatusLevel, string> = {
-  clear: "#4ade80",
-  watch: "#fbbf24",
-  review: "#fb923c",
-  urgent: "#f87171",
+  clear: "#1E6B35",
+  watch: "#8A5A00",
+  review: "#B23E0A",
+  urgent: "#C8102E",
 };
 
 export const SEVERITY_COLOR: Record<Severity, string> = {
-  info: "#8b97b3",
-  watch: "#fbbf24",
-  review: "#fb923c",
-  urgent: "#f87171",
+  info: "#4A4D46",
+  watch: "#8A5A00",
+  review: "#B23E0A",
+  urgent: "#C8102E",
 };
 
 export const METRIC_STATUS_COLOR: Record<string, string> = {
-  normal: "#4ade80",
-  watch: "#fbbf24",
-  notable: "#fb923c",
-  no_baseline: "#8b97b3",
-  context_excluded: "#8b97b3",
+  normal: "#1E6B35",
+  watch: "#8A5A00",
+  notable: "#B23E0A",
+  no_baseline: "#5E6158",
+  context_excluded: "#5E6158",
 };
 
 export function fmtTime(iso: string | null | undefined) {

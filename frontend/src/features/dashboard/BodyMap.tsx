@@ -37,25 +37,19 @@ export function BodyMap({ metrics, selected, onSelect, facialFlag }: Props) {
     onClick: () => onSelect(r),
     onKeyDown: (e: KeyboardEvent) => (e.key === "Enter" || e.key === " ") && onSelect(r),
     style: { cursor: "pointer", outline: "none" },
-    stroke: selected === r ? "#ffffff" : color(r),
-    strokeWidth: selected === r ? 2.5 : 1.5,
-    fill: `${color(r)}${selected === r ? "40" : "1f"}`,
+    stroke: selected === r ? "#2C2E2A" : color(r),
+    strokeWidth: selected === r ? 3 : 1.75,
+    fill: `${color(r)}${selected === r ? "66" : "2e"}`,
   });
   return (
     <svg viewBox="0 0 200 400" className="h-full max-h-[380px] w-auto" aria-label="Interactive body map">
-      <defs>
-        <radialGradient id="aura" cx="50%" cy="45%" r="55%">
-          <stop offset="0%" stopColor={color("wellbeing")} stopOpacity="0.18" />
-          <stop offset="100%" stopColor={color("wellbeing")} stopOpacity="0" />
-        </radialGradient>
-      </defs>
-      <ellipse cx="100" cy="190" rx="98" ry="190" {...part("wellbeing")} fill="url(#aura)" strokeOpacity={selected === "wellbeing" ? 0.7 : 0.15} strokeDasharray="4 6" />
+      <ellipse cx="100" cy="190" rx="98" ry="190" {...part("wellbeing")} strokeOpacity={selected === "wellbeing" ? 1 : 0.35} strokeDasharray="4 6" />
       {/* head */}
       <circle cx="100" cy="42" r="26" {...part("head_eyes")} />
       <circle cx="91" cy="40" r="3" fill={color("head_eyes")} />
       <circle cx="109" cy="40" r="3" fill={color("head_eyes")} />
       {/* torso: lungs + heart */}
-      <path d="M70 78 h60 l12 30 v70 q0 14 -14 18 h-56 q-14 -4 -14 -18 v-70 z" fill="rgba(120,170,255,0.04)" stroke="rgba(120,170,255,0.2)" />
+      <path d="M70 78 h60 l12 30 v70 q0 14 -14 18 h-56 q-14 -4 -14 -18 v-70 z" fill="#FFFFFF" stroke="rgba(44,46,42,0.3)" />
       <path d="M76 100 q-6 30 0 62 q16 6 20 -4 v-56 q-8 -10 -20 -2z" {...part("respiratory")} />
       <path d="M124 100 q6 30 0 62 q-16 6 -20 -4 v-56 q8 -10 20 -2z" {...part("respiratory")} />
       <path d="M100 128 q8 -12 16 -2 q6 10 -16 26 q-22 -16 -16 -26 q8 -10 16 2z" {...part("cardiovascular")} />

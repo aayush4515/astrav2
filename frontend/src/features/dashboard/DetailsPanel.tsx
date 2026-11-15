@@ -1,10 +1,12 @@
 import { motion } from "framer-motion";
-import { Activity, Beaker, FlaskConical, HeartPulse, ListChecks, ScanFace, User, X } from "lucide-react";
+import { Activity, Beaker, ChevronRight, FlaskConical, HeartPulse, ListChecks, ScanFace, User, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Scatter, ScatterChart, Tooltip, XAxis, YAxis, ZAxis } from "recharts";
 import type { Insights, MetricState } from "../../types";
-import { BodyMap, REGIONS } from "./BodyMap";
-import { fmtDate, fmtTime, METRIC_STATUS_COLOR, SEVERITY_COLOR, STATUS_COLOR } from "./format";
+import { Lobe } from "../../components/Lobe";
+import { BodyMap, REGIONS, regionStatus } from "./BodyMap";
+import { fmtDate, fmtTime, SEVERITY_COLOR, STATUS_COLOR } from "./format";
+import { MARK_NAME, METRIC_MARK, SEVERITY_MARK, StatusMark } from "./StatusMark";
 import { TrendChart } from "./TrendChart";
 
 export const SECTIONS = [
@@ -31,30 +33,31 @@ interface Props {
 export function DetailsPanel({ insights, section, metric, region, onSection, onClose, title = "Detailed health insights" }: Props) {
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between gap-3 border-b border-line px-5 py-3">
-        <div>
-          <div className="label">{insights?.astronaut.display_name ?? "Loading"}</div>
-          <h2 className="text-lg font-semibold">{title}</h2>
+      <div className="relative flex items-start justify-between gap-3 overflow-hidden px-6 pb-4 pt-6">
+        <Lobe seed={5} swell={0.12} square={0.5} className="-left-[12%] -right-[8%] -top-[60%] bottom-[-14%]" />
+        <div className="relative">
+          <h2 className="display text-[clamp(2.25rem,4vw,3.5rem)]">{title}</h2>
+          <p className="mt-2 text-[15px] text-ink">{insights?.astronaut.display_name ?? "Loading"}</p>
         </div>
         {onClose && (
-          <button className="btn-ghost px-2.5 py-2" onClick={onClose} aria-label="Close details">
-            <X size={16} />
+          <button className="btn-ghost relative w-11 px-0" onClick={onClose} aria-label="Close details">
+            <X size={18} />
           </button>
         )}
       </div>
-      <nav className="flex gap-1 overflow-x-auto border-b border-line px-3 py-2" aria-label="Insight sections">
+      <nav className="relative flex gap-1.5 overflow-x-auto px-6 py-3" aria-label="Insight sections">
         {SECTIONS.map(({ id, label, icon: Icon }) => (
           <button
             key={id}
             onClick={() => onSection(id)}
-            className={`flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-sm ${section === id ? "bg-cyan-glow/15 text-cyan-soft" : "text-ink-muted hover:text-ink"}`}
+            className={`flex min-h-[40px] items-center gap-1.5 whitespace-nowrap rounded-full px-4 text-[15px] text-ink ${section === id ? "bg-cap-yellow" : "bg-sheet hover:bg-cap-yellow/40"}`}
             aria-current={section === id}
           >
-            <Icon size={14} /> {label}
+            <Icon size={15} /> {label}
           </button>
         ))}
       </nav>
-      <div className="flex-1 overflow-y-auto p-5">
+      <div className="flex-1 overflow-y-auto px-6 pb-6 pt-3">
         {!insights ? (
           <div className="label animate-breathe">Loading history…</div>
         ) : (
@@ -75,24 +78,24 @@ export function DetailsPanel({ insights, section, metric, region, onSection, onC
 
 function SimTag({ simulated }: { simulated: boolean }) {
   return (
-    <span className={`chip ${simulated ? "bg-white/5 text-ink-faint" : "bg-ok/10 text-ok"}`}>{simulated ? "simulated" : "real sensor"}</span>
+    <span className={`chip ${simulated ? "bg-cap-lilac" : "bg-cap-blue"}`}>{simulated ? "simulated" : "real sensor"}</span>
   );
 }
 
 function MetricRow({ k, m, onClick }: { k: string; m: MetricState; onClick?: () => void }) {
   const usual = m.baseline != null ? `usual ${Number(m.baseline.toFixed(1))}` : m.status === "context_excluded" ? "post-exercise" : "no baseline yet";
   return (
-    <button onClick={onClick} className="group flex w-full items-center justify-between gap-4 rounded-xl px-3 py-2.5 text-left transition hover:bg-white/5" data-metric={k}>
+    <button onClick={onClick} className="group flex w-full items-center justify-between gap-4 rounded-2xl px-3 py-2.5 text-left transition-colors hover:bg-water" data-metric={k}>
       <span className="flex min-w-0 items-center gap-2.5">
-        <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: METRIC_STATUS_COLOR[m.status] }} />
-        <span className="truncate text-sm group-hover:text-ink">{m.label}</span>
+        <StatusMark level={METRIC_MARK[m.status] ?? "none"} size={13} />
+        <span className="truncate text-[15px]">{m.label}</span>
       </span>
-      <span className="shrink-0 text-right leading-tight">
-        <span className="font-mono text-sm">
+      <span className="shrink-0 text-right tabular-nums leading-tight">
+        <span className="text-[17px]">
           {m.value}
-          <span className="ml-1 text-xs text-ink-faint">{m.unit}</span>
+          <span className="ml-1 text-[13px] text-ink-soft">{m.unit}</span>
         </span>
-        <span className="block font-mono text-[10px] text-ink-faint">{usual}</span>
+        <span className="block text-[13px] text-ink-soft">{usual}</span>
       </span>
     </button>
   );
@@ -103,35 +106,37 @@ function Overview({ insights, onSection }: { insights: Insights; onSection: Prop
   const metrics = (latest?.metrics ?? {}) as Record<string, MetricState>;
   return (
     <div className="grid gap-5 xl:grid-cols-[1.2fr_1fr]">
-      <section className="panel p-4">
-        <div className="label">Latest measurements · {fmtTime(latest?.t)}</div>
-        <div className="mt-2 divide-y divide-line">
+      <section className="sheet p-5">
+        <h3 className="sheet-title">Latest measurements</h3>
+        <p className="label">{fmtTime(latest?.t)}</p>
+        <div className="mt-2 divide-y divide-rule">
           {Object.entries(metrics).map(([k, m]) => (
             <MetricRow key={k} k={k} m={m} onClick={() => onSection("trends", { metric: k })} />
           ))}
-          {!Object.keys(metrics).length && <p className="p-3 text-sm text-ink-faint">No completed check-in yet.</p>}
+          {!Object.keys(metrics).length && <p className="p-3 text-[15px] text-ink-soft">No completed check-in yet.</p>}
         </div>
       </section>
       <section className="flex flex-col gap-5">
-        <div className="panel p-4">
-          <div className="label">Recent observations (14 days)</div>
-          <ul className="mt-2 space-y-2">
+        <div className="sheet p-5">
+          <h3 className="sheet-title">Recent observations (14 days)</h3>
+          <ul className="mt-2 divide-y divide-rule">
             {insights.observations.slice(0, 6).map((o) => (
-              <li key={o.id} className="rounded-xl bg-white/[0.03] px-3 py-2">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-sm font-medium" style={{ color: SEVERITY_COLOR[o.severity] }}>
+              <li key={o.id} className="py-2.5">
+                <div className="flex items-start justify-between gap-2">
+                  <span className="flex items-start gap-2 text-[15px] leading-snug" style={{ color: o.severity === "info" ? undefined : SEVERITY_COLOR[o.severity] }}>
+                    <StatusMark level={SEVERITY_MARK[o.severity]} size={13} className="mt-1" />
                     {o.title}
                   </span>
-                  <span className="font-mono text-[11px] text-ink-faint">{fmtDate(o.t)}</span>
+                  <span className="shrink-0 text-[13px] text-ink-soft">{fmtDate(o.t)}</span>
                 </div>
-                {o.experimental && <span className="chip mt-1 bg-caution/10 text-caution">experimental</span>}
+                {o.experimental && <span className="chip ml-5 mt-1 bg-cap-coral">experimental</span>}
               </li>
             ))}
-            {!insights.observations.length && <li className="text-sm text-ink-faint">No notable observations.</li>}
+            {!insights.observations.length && <li className="text-[15px] text-ink-soft">No notable observations.</li>}
           </ul>
         </div>
-        <div className="panel p-4">
-          <div className="label">Check-in history</div>
+        <div className="sheet p-5">
+          <h3 className="sheet-title">Check-in history</h3>
           <div className="mt-3 flex flex-wrap gap-1.5">
             {insights.checkins
               .slice()
@@ -140,12 +145,12 @@ function Overview({ insights, onSection }: { insights: Insights; onSection: Prop
                 <span
                   key={c.id}
                   title={`${fmtTime(c.t)} · ${c.status ?? "—"}${c.seeded ? " · synthetic history" : ""}`}
-                  className="h-4 w-4 rounded"
-                  style={{ background: c.status_level ? STATUS_COLOR[c.status_level] : "#334", opacity: c.seeded ? 0.55 : 1 }}
+                  className="h-5 w-5 rounded-full"
+                  style={{ background: c.status_level ? STATUS_COLOR[c.status_level] : "#5E6158", opacity: c.seeded ? 0.45 : 1 }}
                 />
               ))}
           </div>
-          <p className="mt-2 text-[11px] text-ink-faint">Faded squares are synthetic seeded history. Hover for details.</p>
+          <p className="mt-2 text-[13px] text-ink-soft">Faded dots are synthetic seeded history. Hover for the status and date.</p>
         </div>
       </section>
     </div>
@@ -171,23 +176,23 @@ function Trends({ insights, metric, onSection }: { insights: Insights; metric?: 
               setSel(k);
               onSection("trends", { metric: k });
             }}
-            className={`chip ${sel === k ? "bg-cyan-glow/15 text-cyan-soft ring-1 ring-cyan-glow/40" : "bg-white/5 text-ink-muted hover:text-ink"}`}
+            className={`chip min-h-[36px] ${sel === k ? "bg-cap-yellow" : "bg-sheet hover:bg-cap-yellow/40"}`}
           >
             {insights.metrics_catalog[k].label}
           </button>
         ))}
       </div>
-      <section className="panel p-4">
+      <section className="sheet p-5">
         <div className="flex flex-wrap items-end justify-between gap-2">
           <div>
-            <div className="label">{spec.label} · last 28 days</div>
+            <h3 className="sheet-title">{spec.label} · last 28 days</h3>
             {latest && (
-              <div className="mt-1 text-3xl font-semibold">
-                {latest.value} <span className="text-base text-ink-muted">{spec.unit}</span>
+              <div className="mt-1 text-[44px] tabular-nums leading-none tracking-[-0.05em]">
+                {latest.value} <span className="text-[17px] tracking-normal text-ink-soft">{spec.unit}</span>
               </div>
             )}
           </div>
-          <div className="text-right text-xs text-ink-muted">
+          <div className="text-right text-[13px] text-ink-soft">
             {base ? (
               <>
                 Personal baseline {base.median.toFixed(1)} ± {base.spread.toFixed(1)} {spec.unit} (n={base.n})
@@ -201,18 +206,18 @@ function Trends({ insights, metric, onSection }: { insights: Insights; metric?: 
         <div className="mt-3">
           <TrendChart points={insights.series[sel] ?? []} unit={spec.unit} baseline={base} refLow={spec.ref_low} refHigh={spec.ref_high} />
         </div>
-        <p className="mt-2 text-xs text-ink-faint">
-          Shaded band: your personal range (median ± 2 robust SD). Dotted amber lines: general reference values (illustrative, not NASA criteria).
+        <p className="mt-2 text-[13px] text-ink-soft">
+          Shaded band: your personal range (median ± 2 robust SD). Dotted ochre lines: general reference values (illustrative, not NASA criteria).
         </p>
       </section>
       <section className="grid gap-3 md:grid-cols-2">
-        <div className="panel p-4">
-          <div className="label">Why it matters</div>
-          <p className="mt-1 text-sm text-ink-muted">{spec.why}</p>
+        <div className="sheet p-5">
+          <h3 className="sheet-title">Why it matters</h3>
+          <p className="mt-1 text-[15px] leading-snug text-ink-soft">{spec.why}</p>
         </div>
-        <div className="panel p-4">
-          <div className="label">How it is measured</div>
-          <p className="mt-1 text-sm text-ink-muted">{spec.how}</p>
+        <div className="sheet p-5">
+          <h3 className="sheet-title">How it is measured</h3>
+          <p className="mt-1 text-[15px] leading-snug text-ink-soft">{spec.how}</p>
         </div>
       </section>
     </div>
@@ -234,27 +239,36 @@ function Body({ insights, region, onSection }: { insights: Insights; region?: st
       <div className="flex justify-center">
         <BodyMap metrics={metrics} selected={sel} onSelect={setSel} facialFlag={facialFlag} />
       </div>
-      <section className="panel p-4">
-        <div className="label">Body region</div>
-        <h3 className="mt-1 text-xl font-semibold">{info?.label}</h3>
-        <p className="mt-1 text-sm text-ink-muted">{info?.description}</p>
-        <div className="mt-3 divide-y divide-line">
+      <section className="sheet p-5">
+        <h3 className="text-[28px] leading-tight tracking-[-0.04em]">{info?.label}</h3>
+        <p className="mt-1 flex items-center gap-1.5 text-[15px]">
+          <StatusMark level={METRIC_MARK[regionStatus(metrics, sel, sel === "head_eyes" && facialFlag)] ?? "none"} size={13} />
+          {MARK_NAME[METRIC_MARK[regionStatus(metrics, sel, sel === "head_eyes" && facialFlag)] ?? "none"]}
+        </p>
+        <p className="mt-2 text-[15px] leading-snug text-ink-soft">{info?.description}</p>
+        <div className="mt-3 divide-y divide-rule">
           {inRegion.map(([k, m]) => (
             <MetricRow key={k} k={k} m={m} onClick={() => onSection("trends", { metric: k })} />
           ))}
           {sel === "head_eyes" && (
-            <button className="w-full rounded-xl px-3 py-2 text-left text-sm hover:bg-white/5" onClick={() => onSection("facial")}>
-              Facial geometry: <span style={{ color: facialFlag ? "#fbbf24" : "#4ade80" }}>{insights.latest?.facial?.status?.replace("_", " ") ?? "no scan"}</span> →
+            <button className="flex w-full items-center gap-2 rounded-2xl px-3 py-2.5 text-left text-[15px] hover:bg-water" onClick={() => onSection("facial")}>
+              Facial geometry:
+              <StatusMark level={facialFlag ? "watch" : "clear"} size={13} />
+              <span className={facialFlag ? "text-st-watch" : "text-st-clear"}>{insights.latest?.facial?.status?.replace("_", " ") ?? "no scan"}</span>
+              <ChevronRight size={16} className="ml-auto" />
             </button>
           )}
-          {!inRegion.length && sel !== "head_eyes" && <p className="px-3 py-2 text-sm text-ink-faint">No direct sensor in this region; see well-being and questionnaire data.</p>}
+          {!inRegion.length && sel !== "head_eyes" && <p className="px-3 py-2 text-[15px] text-ink-soft">No direct sensor in this region; see well-being and questionnaire data.</p>}
         </div>
         {obs.length > 0 && (
           <div className="mt-4 space-y-2">
             {obs.map((o, i) => (
-              <div key={i} className="rounded-xl bg-white/[0.03] p-3 text-sm">
-                <div style={{ color: SEVERITY_COLOR[o.severity] }}>{o.title}</div>
-                <p className="mt-1 text-ink-muted">{o.explanation}</p>
+              <div key={i} className="rounded-[20px] bg-water p-4 text-[15px]">
+                <div className="flex items-center gap-2" style={{ color: SEVERITY_COLOR[o.severity] }}>
+                  <StatusMark level={SEVERITY_MARK[o.severity]} size={13} />
+                  {o.title}
+                </div>
+                <p className="mt-1 leading-snug text-ink-soft">{o.explanation}</p>
               </div>
             ))}
           </div>
@@ -271,19 +285,23 @@ function Facial({ insights }: { insights: Insights }) {
   const latest = hist.filter((h) => !h.is_reference).at(-1);
   const series = hist.map((h) => ({ t: h.t, v: h.features[sel], valid: true, simulated: false, context: h.is_reference ? "reference" : "checkin" }));
   if (!hist.length)
-    return <p className="text-sm text-ink-muted">No facial observations yet. They are captured from the real webcam during enrollment and each check-in.</p>;
+    return <p className="text-[15px] text-ink-soft">No facial observations yet. They are captured from the real webcam during enrollment and each check-in.</p>;
   return (
     <div className="flex flex-col gap-4">
       {latest?.comparison && (
-        <section className="panel p-4">
-          <div className="label">Latest scan · {fmtTime(latest.t)}</div>
-          <p className="mt-2 text-sm">{latest.comparison.explanation ?? latest.comparison.message}</p>
-          <div className="mt-3 flex justify-end font-mono text-[10px] uppercase tracking-[0.14em] text-ink-faint">now vs reference</div>
+        <section className="sheet p-5">
+          <h3 className="sheet-title">Latest scan</h3>
+          <p className="label">{fmtTime(latest.t)}</p>
+          <p className="mt-2 text-[15px] leading-snug">{latest.comparison.explanation ?? latest.comparison.message}</p>
+          <div className="mt-3 flex justify-end text-[13px] text-ink-soft">now vs reference</div>
           <div className="mt-1 grid gap-2 sm:grid-cols-2">
             {Object.entries(latest.comparison.features ?? {}).map(([k, f]) => (
-              <button key={k} onClick={() => setSel(k)} className={`flex justify-between rounded-lg px-3 py-2 text-left text-sm ${sel === k ? "bg-white/10" : "bg-white/[0.03]"}`}>
-                <span style={{ color: f.flagged ? "#fbbf24" : undefined }}>{f.label}</span>
-                <span className="font-mono text-xs text-ink-muted">
+              <button key={k} onClick={() => setSel(k)} className={`flex items-center justify-between gap-2 rounded-2xl px-4 py-2.5 text-left text-[15px] ${sel === k ? "bg-cap-yellow" : "bg-water hover:bg-cap-yellow/40"}`}>
+                <span className={`flex items-center gap-1.5 ${f.flagged ? "text-st-watch" : ""}`}>
+                  {f.flagged && <StatusMark level="watch" size={13} />}
+                  {f.label}
+                </span>
+                <span className="text-[13px] text-ink-soft">
                   {f.current.toFixed(3)} vs {f.reference.toFixed(3)}
                 </span>
               </button>
@@ -291,22 +309,22 @@ function Facial({ insights }: { insights: Insights }) {
           </div>
         </section>
       )}
-      <section className="panel p-4">
+      <section className="sheet p-5">
         <div className="flex flex-wrap gap-1.5">
           {keys.map((k) => (
-            <button key={k} onClick={() => setSel(k)} className={`chip ${sel === k ? "bg-cyan-glow/15 text-cyan-soft" : "bg-white/5 text-ink-muted"}`}>
+            <button key={k} onClick={() => setSel(k)} className={`chip min-h-[36px] ${sel === k ? "bg-cap-yellow" : "bg-water hover:bg-cap-yellow/40"}`}>
               {insights.facial_features[k].label}
             </button>
           ))}
         </div>
         <div className="mt-3">
-          <TrendChart points={series} unit={insights.facial_features[sel].unit} decimals={3} color="#5ee7ff" />
+          <TrendChart points={series} unit={insights.facial_features[sel].unit} decimals={3} />
         </div>
-        <p className="mt-1 text-xs text-ink-muted">
+        <p className="mt-1 text-[13px] text-ink-soft">
           {insights.facial_features[sel].description} Hollow markers are enrollment reference scans.
         </p>
       </section>
-      <p className="text-xs text-ink-faint">
+      <p className="text-[13px] text-ink-soft">
         Measured from the real webcam with MediaPipe landmarks; only geometry numbers are stored, never images. A webcam cannot diagnose edema, intracranial pressure, stroke or eye disease.
       </p>
     </div>
@@ -321,62 +339,63 @@ function Voc({ insights }: { insights: Insights }) {
     () => (a?.pca ? [...a.pca.history.map(([x, y]) => ({ x, y, kind: "history" })), { x: a.pca.current[0], y: a.pca.current[1], kind: "current" }] : []),
     [a],
   );
-  if (!latest) return <p className="text-sm text-ink-muted">No VOC fingerprints yet.</p>;
+  if (!latest) return <p className="text-[15px] text-ink-soft">No VOC fingerprints yet.</p>;
   return (
     <div className="flex flex-col gap-4">
-      <div className="rounded-xl border border-caution/30 bg-caution/5 p-3 text-xs text-caution">
+      <div className="rounded-[20px] bg-cap-yellow px-5 py-3 text-[15px] leading-snug">
         Experimental research feature with a simulated e-nose. It tracks change from your own pattern only — it does not measure hormones or diagnose anything.
       </div>
       {a && (
-        <section className="panel p-4">
-          <div className="label">Latest fingerprint · {fmtTime(latest.t)}</div>
-          <p className="mt-2 text-sm">{a.explanation ?? a.message}</p>
-          {a.similarity != null && <p className="mt-1 font-mono text-xs text-ink-muted">Similarity to baseline {a.similarity}% · history n={a.n_history}</p>}
+        <section className="sheet p-5">
+          <h3 className="sheet-title">Latest fingerprint</h3>
+          <p className="label">{fmtTime(latest.t)}</p>
+          <p className="mt-2 text-[15px] leading-snug">{a.explanation ?? a.message}</p>
+          {a.similarity != null && <p className="mt-1 text-[13px] text-ink-soft">Similarity to baseline {a.similarity}% · history n={a.n_history}</p>}
         </section>
       )}
       <div className="grid gap-4 md:grid-cols-2">
-        <section className="panel p-4">
-          <div className="label">Channel deviation (robust z)</div>
+        <section className="sheet p-5">
+          <h3 className="sheet-title">Channel deviation (robust z)</h3>
           <div className="h-52">
             <ResponsiveContainer>
               <BarChart data={bars}>
-                <CartesianGrid stroke="rgba(120,170,255,0.08)" vertical={false} />
-                <XAxis dataKey="ch" stroke="#5b6785" fontSize={10} />
-                <YAxis stroke="#5b6785" fontSize={10} />
-                <Tooltip contentStyle={{ background: "#0a1224", border: "1px solid rgba(120,170,255,0.2)" }} />
+                <CartesianGrid stroke="rgba(44,46,42,0.1)" vertical={false} />
+                <XAxis dataKey="ch" stroke="#5E6158" fontSize={12} />
+                <YAxis stroke="#5E6158" fontSize={12} />
+                <Tooltip cursor={{ fill: "rgba(44,46,42,0.06)" }} contentStyle={{ background: "#FFFFFF", border: "none", borderRadius: 16, fontSize: 13, color: "#2C2E2A", boxShadow: "0 6px 20px rgba(44,46,42,0.16)" }} />
                 <Bar dataKey="z" isAnimationActive={false}>
                   {bars.map((b, i) => (
-                    <Cell key={i} fill={Math.abs(b.z) >= 3.5 ? "#fbbf24" : "#5ee7ff"} />
+                    <Cell key={i} fill={Math.abs(b.z) >= 3.5 ? "#8A5A00" : "#2BA0FF"} />
                   ))}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>
         </section>
-        <section className="panel p-4">
-          <div className="label">Pattern map (PCA of your history)</div>
+        <section className="sheet p-5">
+          <h3 className="sheet-title">Pattern map (PCA of your history)</h3>
           <div className="h-52">
             <ResponsiveContainer>
               <ScatterChart>
-                <CartesianGrid stroke="rgba(120,170,255,0.08)" />
-                <XAxis dataKey="x" type="number" stroke="#5b6785" fontSize={10} />
-                <YAxis dataKey="y" type="number" stroke="#5b6785" fontSize={10} />
+                <CartesianGrid stroke="rgba(44,46,42,0.1)" />
+                <XAxis dataKey="x" type="number" stroke="#5E6158" fontSize={12} />
+                <YAxis dataKey="y" type="number" stroke="#5E6158" fontSize={12} />
                 <ZAxis range={[40, 40]} />
                 <Scatter data={scatter} isAnimationActive={false}>
                   {scatter.map((p, i) => (
-                    <Cell key={i} fill={p.kind === "current" ? "#fbbf24" : "#5ee7ff66"} />
+                    <Cell key={i} fill={p.kind === "current" ? "#2C2E2A" : "#2BA0FF"} fillOpacity={p.kind === "current" ? 1 : 0.55} />
                   ))}
                 </Scatter>
               </ScatterChart>
             </ResponsiveContainer>
           </div>
-          <p className="text-[11px] text-ink-faint">Blue: previous scans. Amber: current scan.</p>
+          <p className="text-[13px] text-ink-soft">Blue: previous scans. Ink: current scan.</p>
         </section>
       </div>
       {a?.possible_interference && (
-        <section className="panel p-4">
-          <div className="label">Possible measurement interference</div>
-          <ul className="mt-2 list-disc pl-5 text-sm text-ink-muted">
+        <section className="sheet p-5">
+          <h3 className="sheet-title">Possible measurement interference</h3>
+          <ul className="mt-2 list-disc pl-5 text-[15px] text-ink-soft">
             {a.possible_interference.map((x) => (
               <li key={x}>{x}</li>
             ))}
@@ -397,21 +416,22 @@ function Labs({ insights }: { insights: Insights }) {
   const prev = labs.at(-2);
   return (
     <div className="flex flex-col gap-4">
-      <section className="panel flex flex-wrap items-center justify-between gap-3 p-4">
+      <section className="sheet flex flex-wrap items-center justify-between gap-3 p-5">
         <div>
-          <div className="label">Weekly blood assessment</div>
-          <p className="mt-1 text-sm">
-            Next due <b>{fmtDate(s.next_due)}</b> · status <span className={s.due_now ? "text-caution" : "text-ok"}>{s.status}</span>
+          <h3 className="sheet-title">Weekly blood assessment</h3>
+          <p className="mt-1 text-[15px]">
+            Next due {fmtDate(s.next_due)} · status <span className={s.due_now ? "rounded-full bg-cap-yellow px-2.5 py-0.5" : ""}>{s.status}</span>
           </p>
         </div>
-        <p className="text-xs text-ink-faint">Demo interval: every {s.interval_days} days (configurable, not an official protocol).</p>
+        <p className="text-[13px] text-ink-soft">Demo interval: every {s.interval_days} days (configurable, not an official protocol).</p>
       </section>
       {latest ? (
         <>
-          <section className="panel overflow-x-auto p-4">
-            <div className="label">Latest panel · {fmtDate(latest.completed_at)} · {latest.analyzer}</div>
-            <table className="mt-2 w-full text-sm">
-              <thead className="text-left text-[11px] uppercase tracking-wider text-ink-faint">
+          <section className="sheet overflow-x-auto p-5">
+            <h3 className="sheet-title">Latest panel</h3>
+            <p className="label">{fmtDate(latest.completed_at)} · {latest.analyzer}</p>
+            <table className="mt-2 w-full text-[15px] tabular-nums">
+              <thead className="text-left text-[13px] text-ink-soft">
                 <tr>
                   <th className="py-1">Marker</th>
                   <th>Latest</th>
@@ -424,13 +444,16 @@ function Labs({ insights }: { insights: Insights }) {
                   const r = latest.results[k];
                   const out = (r.ref_low != null && r.value < r.ref_low) || (r.ref_high != null && r.value > r.ref_high);
                   return (
-                    <tr key={k} className="cursor-pointer border-t border-line hover:bg-white/5" onClick={() => setSel(k)}>
-                      <td className="py-1.5">{r.label}</td>
-                      <td className="font-mono" style={{ color: out ? "#fbbf24" : undefined }}>
-                        {r.value} {r.unit}
+                    <tr key={k} className={`cursor-pointer border-t border-rule hover:bg-water ${sel === k ? "bg-cap-yellow/40" : ""}`} onClick={() => setSel(k)}>
+                      <td className="py-2">{r.label}</td>
+                      <td className={out ? "text-st-watch" : undefined}>
+                        <span className="inline-flex items-center gap-1.5">
+                          {out && <StatusMark level="watch" size={13} />}
+                          {r.value} {r.unit}
+                        </span>
                       </td>
-                      <td className="font-mono text-ink-muted">{prev?.results[k]?.value ?? "—"}</td>
-                      <td className="font-mono text-ink-faint">
+                      <td className="text-ink-soft">{prev?.results[k]?.value ?? "—"}</td>
+                      <td className="text-ink-soft">
                         {r.ref_low}–{r.ref_high}
                       </td>
                     </tr>
@@ -442,13 +465,13 @@ function Labs({ insights }: { insights: Insights }) {
               <SimTag simulated={latest.simulated} />
             </div>
           </section>
-          <section className="panel p-4">
-            <div className="label">{latest.results[sel]?.label} history</div>
-            <TrendChart points={series} unit={latest.results[sel]?.unit ?? ""} refLow={latest.results[sel]?.ref_low} refHigh={latest.results[sel]?.ref_high} color="#f87171" />
+          <section className="sheet p-5">
+            <h3 className="sheet-title">{latest.results[sel]?.label} history</h3>
+            <TrendChart points={series} unit={latest.results[sel]?.unit ?? ""} refLow={latest.results[sel]?.ref_low} refHigh={latest.results[sel]?.ref_high} />
           </section>
         </>
       ) : (
-        <p className="text-sm text-ink-muted">No lab results yet.</p>
+        <p className="text-[15px] text-ink-soft">No lab results yet.</p>
       )}
     </div>
   );
@@ -456,24 +479,24 @@ function Labs({ insights }: { insights: Insights }) {
 
 function GuidanceList({ insights }: { insights: Insights }) {
   const items = insights.latest?.guidance ?? [];
-  if (!items.length) return <p className="text-sm text-ink-muted">No guidance recorded for the latest check-in.</p>;
+  if (!items.length) return <p className="text-[15px] text-ink-soft">No guidance recorded for the latest check-in.</p>;
   return (
     <div className="flex flex-col gap-3">
       {items.map((g) => (
-        <section key={g.id} className="panel p-4">
-          <div className="flex items-center justify-between">
-            <h3 className="font-semibold">{g.title}</h3>
-            <span className="label">{g.tier}</span>
+        <section key={g.id} className="sheet p-5">
+          <div className="flex items-start justify-between gap-3">
+            <h3 className="text-[22px] leading-tight tracking-[-0.03em]">{g.title}</h3>
+            <span className="chip shrink-0 bg-cap-lilac">{g.tier}</span>
           </div>
-          <p className="mt-1 text-sm text-ink-muted">{g.spoken}</p>
-          <ul className="mt-2 list-disc pl-5 text-sm">
+          <p className="mt-1 text-[15px] leading-snug text-ink-soft">{g.spoken}</p>
+          <ul className="mt-2 list-disc pl-5 text-[15px] leading-snug">
             {g.steps.map((s) => (
               <li key={s}>{s}</li>
             ))}
           </ul>
-          <p className="mt-2 text-xs text-ink-faint">
+          <p className="mt-2 text-[13px] text-ink-soft">
             Why: {g.why}{" "}
-            <a className="text-cyan-soft underline" href={g.source} target="_blank" rel="noreferrer">
+            <a className="text-ink underline" href={g.source} target="_blank" rel="noreferrer">
               source
             </a>{" "}
             · demonstration content, not clinically reviewed

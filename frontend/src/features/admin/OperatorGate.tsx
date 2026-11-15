@@ -1,6 +1,7 @@
 import { Lock } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { api, tokens } from "../../services/api";
+import { Lobe } from "../../components/Lobe";
 
 /** Minimal operator authentication for Mission Control and demo/admin tools (demo-grade, PIN based). */
 export function OperatorGate({ children, title }: { children: ReactNode; title: string }) {
@@ -17,9 +18,10 @@ export function OperatorGate({ children, title }: { children: ReactNode; title: 
   }, []);
   if (authed) return <>{children}</>;
   return (
-    <div className="flex min-h-[70vh] items-center justify-center p-6">
+    <div className="relative flex min-h-[78vh] items-center justify-center overflow-hidden p-6">
+      <Lobe seed={17} swell={0.14} square={0.4} hole={{ cx: 50, cy: 50, rx: 30, ry: 34 }} className="inset-x-[4%] inset-y-[2%] md:inset-x-[16%]" />
       <form
-        className="panel flex w-full max-w-sm flex-col gap-4 p-6"
+        className="sheet relative flex w-full max-w-sm flex-col gap-4 p-7"
         onSubmit={async (e) => {
           e.preventDefault();
           try {
@@ -31,13 +33,11 @@ export function OperatorGate({ children, title }: { children: ReactNode; title: 
           }
         }}
       >
-        <div className="flex items-center gap-2">
-          <Lock size={18} className="text-cyan-glow" />
-          <h1 className="text-lg font-semibold">{title}</h1>
-        </div>
-        <p className="text-sm text-ink-muted">Authorized operators only. Demo PIN is set by ASTRA_OPERATOR_PIN (default 2026).</p>
+        <Lock size={22} />
+        <h1 className="text-[30px] leading-[1.02] tracking-[-0.045em]">{title}</h1>
+        <p className="text-[15px] leading-snug text-ink-soft">Authorized operators only. Demo PIN is set by ASTRA_OPERATOR_PIN (default 2026).</p>
         <input className="input" type="password" inputMode="numeric" autoFocus value={pin} onChange={(e) => setPin(e.target.value)} placeholder="Operator PIN" aria-label="Operator PIN" />
-        {error && <p className="text-sm text-alert">{error}</p>}
+        {error && <p className="text-[15px] text-st-urgent" role="alert">{error}</p>}
         <button className="btn-primary">Sign in</button>
       </form>
     </div>

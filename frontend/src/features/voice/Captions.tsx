@@ -18,8 +18,8 @@ export function Captions({ max = 3, only, since = 0 }: { max?: number; only?: "a
               exit={{ opacity: 0 }}
               className={only ? "text-center" : c.speaker === "astra" ? "text-left" : "text-right"}
             >
-              <span className="label mr-2">{c.speaker === "astra" ? "ASTRA" : "You"}</span>
-              <span className={c.speaker === "astra" ? "text-lg text-ink md:text-xl" : "text-lg italic text-ok md:text-xl"}>
+              <span className={`chip mr-2 align-[0.15em] ${c.speaker === "astra" ? "bg-cap-blue" : "bg-cap-coral"}`}>{c.speaker === "astra" ? "ASTRA" : "You"}</span>
+              <span className="text-lg leading-snug text-ink md:text-xl">
                 {c.speaker === "astronaut" ? `“${c.text}”` : c.text}
               </span>
             </motion.div>

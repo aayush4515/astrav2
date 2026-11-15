@@ -18,11 +18,11 @@ interface BoothProps {
   progress?: number;
 }
 
-const HULL = new THREE.MeshStandardMaterial({ color: "#2b3854", metalness: 0.6, roughness: 0.32 });
-const HULL_LIGHT = new THREE.MeshStandardMaterial({ color: "#d3dcec", metalness: 0.35, roughness: 0.4 });
-const SUIT = new THREE.MeshStandardMaterial({ color: "#eef1f7", metalness: 0.05, roughness: 0.62 });
-const SUIT_DARK = new THREE.MeshStandardMaterial({ color: "#7d8aa3", metalness: 0.2, roughness: 0.6 });
-const VISOR = new THREE.MeshStandardMaterial({ color: "#0b1530", metalness: 0.9, roughness: 0.1, emissive: "#103050", emissiveIntensity: 0.3 });
+const HULL = new THREE.MeshStandardMaterial({ color: "#2C2E2A", metalness: 0.15, roughness: 0.7 });
+const HULL_LIGHT = new THREE.MeshStandardMaterial({ color: "#FFFFFF", metalness: 0.05, roughness: 0.8 });
+const SUIT = new THREE.MeshStandardMaterial({ color: "#FFFFFF", metalness: 0.02, roughness: 0.85 });
+const SUIT_DARK = new THREE.MeshStandardMaterial({ color: "#EBC1FF", metalness: 0.02, roughness: 0.85 });
+const VISOR = new THREE.MeshStandardMaterial({ color: "#2C2E2A", metalness: 0.5, roughness: 0.25, emissive: "#2BA0FF", emissiveIntensity: 0.15 });
 
 export default function Booth3D(props: BoothProps) {
   return (
@@ -33,8 +33,8 @@ export default function Booth3D(props: BoothProps) {
       gl={{ antialias: true, powerPreference: "high-performance" }}
       aria-label="Interactive 3D health booth"
     >
-      <color attach="background" args={["#04070f"]} />
-      <fog attach="fog" args={["#04070f", 8, 18]} />
+      <color attach="background" args={["#F5F1E4"]} />
+      <fog attach="fog" args={["#F5F1E4", 8, 18]} />
       <Suspense fallback={null}>
         <Scene {...props} />
       </Suspense>
@@ -48,14 +48,14 @@ function Scene({ activeDevice, phase, selected, onSelect, interactive = true, re
   return (
     <>
       <ambientLight intensity={0.3 * dim + 0.1} />
-      <hemisphereLight args={["#7fb4ff", "#0a0f1c", 0.5 * dim]} />
+      <hemisphereLight args={["#FFFBEE", "#8ED462", 0.5 * dim]} />
       <directionalLight position={[4, 6, 5]} intensity={1.4 * dim} castShadow shadow-mapSize={[1024, 1024]} />
-      {/* cool rim light separates the astronaut from the dark shell */}
-      <spotLight position={[-2.5, 3.5, -2.5]} angle={0.6} penumbra={0.8} intensity={phase === "emergency" ? 0 : 18 * dim} color="#5ee7ff" distance={9} />
+      {/* warm rim light separates the astronaut from the shell */}
+      <spotLight position={[-2.5, 3.5, -2.5]} angle={0.6} penumbra={0.8} intensity={phase === "emergency" ? 0 : 18 * dim} color="#FFF6D8" distance={9} />
       <Stars radius={70} depth={40} count={2200} factor={3} saturation={0} fade speed={reduceMotion ? 0 : 0.4} />
       <ContactShadows position={[0, 0.125, 0]} opacity={0.55} scale={3} blur={2.4} far={2} resolution={512} />
-      <pointLight position={[0, 3.1, 0.6]} intensity={phase === "emergency" ? 0 : 1.2 * dim} color="#5ee7ff" distance={6} />
-      {phase === "emergency" && <pointLight position={[0, 3, 1]} intensity={2.5} color="#ff3b3b" distance={7} />}
+      <pointLight position={[0, 3.1, 0.6]} intensity={phase === "emergency" ? 0 : 1.2 * dim} color="#FFF6D8" distance={6} />
+      {phase === "emergency" && <pointLight position={[0, 3, 1]} intensity={2.5} color="#C8102E" distance={7} />}
 
       <CameraRig focus={focusId ? BOOTH_DEVICES[focusId].focus : null} wide={phase === "conversation" || phase === "results"} reduceMotion={reduceMotion} />
       <OrbitControls
@@ -141,15 +141,15 @@ function Structure({ phase, reduceMotion }: { phase: BoothPhase; reduceMotion?: 
     const m = ring.current.material as THREE.MeshStandardMaterial;
     m.emissiveIntensity = phase === "standby" ? 0.6 + Math.sin(clock.elapsedTime * 1.5) * 0.35 : 1.4;
   });
-  const accent = phase === "emergency" ? "#ff3b3b" : "#5ee7ff";
+  const accent = phase === "emergency" ? "#C8102E" : "#2BA0FF";
   return (
     <group>
       {/* deck */}
       <mesh rotation-x={-Math.PI / 2} receiveShadow>
         <circleGeometry args={[6, 64]} />
-        <meshStandardMaterial color="#070c18" metalness={0.4} roughness={0.8} />
+        <meshBasicMaterial color="#F5F1E4" toneMapped={false} />
       </mesh>
-      <gridHelper args={[12, 24, "#123055", "#0b1a33"]} position={[0, 0.002, 0]} />
+      <gridHelper args={[12, 24, "#E9E3D0", "#E9E3D0"]} position={[0, 0.002, 0]} />
       {/* platform */}
       <mesh position={[0, 0.06, 0]} castShadow receiveShadow material={HULL}>
         <cylinderGeometry args={[1.05, 1.15, 0.12, 64]} />
@@ -161,7 +161,7 @@ function Structure({ phase, reduceMotion }: { phase: BoothPhase; reduceMotion?: 
       {/* curved back shell */}
       <mesh position={[0, 1.45, 0]} castShadow receiveShadow>
         <cylinderGeometry args={[1.45, 1.45, 2.9, 64, 1, true, Math.PI * 0.62, Math.PI * 0.76]} />
-        <meshStandardMaterial color="#1c2842" metalness={0.55} roughness={0.38} side={THREE.DoubleSide} />
+        <meshStandardMaterial color="#FFFFFF" metalness={0.02} roughness={0.9} side={THREE.DoubleSide} />
       </mesh>
       {/* panel seams on the shell */}
       {[0.75, 1.55, 2.35].map((y) => (
@@ -262,7 +262,7 @@ function Astronaut({ active, reduceMotion, progress }: { active: DeviceId | null
       {/* chest status light mirrors the booth state */}
       <mesh position={[0.07, 1.31, 0.335]}>
         <circleGeometry args={[0.016, 16]} />
-        <meshStandardMaterial color="#5ee7ff" emissive="#5ee7ff" emissiveIntensity={active ? 2.5 : 0.8} toneMapped={false} />
+        <meshStandardMaterial color="#2BA0FF" emissive="#2BA0FF" emissiveIntensity={active ? 2.5 : 0.8} toneMapped={false} />
       </mesh>
       {/* head + visor-less face plate (booth is shirt-sleeve environment) */}
       <mesh position={[0, 1.66, 0.1]} castShadow material={SUIT}>
@@ -277,7 +277,7 @@ function Astronaut({ active, reduceMotion, progress }: { active: DeviceId | null
       {/* wrist wearable */}
       <mesh position={[-0.37, 0.88, 0.14]} rotation-x={Math.PI / 2}>
         <torusGeometry args={[0.07, 0.018, 8, 24]} />
-        <meshStandardMaterial color="#a78bfa" emissive="#a78bfa" emissiveIntensity={active === "wearable_sync" ? 2 : 0.4} toneMapped={false} />
+        <meshStandardMaterial color="#C58AF0" emissive="#C58AF0" emissiveIntensity={active === "wearable_sync" ? 2 : 0.4} toneMapped={false} />
       </mesh>
     </group>
   );
@@ -310,10 +310,10 @@ function DeviceGroup({ id, active, selected, onSelect, children }: { id: DeviceI
       {(hover || isActive || isSel) && (
         <Html position={dev.focus} center style={{ pointerEvents: "none" }} zIndexRange={[10, 0]}>
           <div
-            className="whitespace-nowrap rounded-full border px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest backdrop-blur"
-            style={{ borderColor: `${dev.color}88`, color: dev.color, background: "rgba(4,7,15,0.7)", transform: "translateY(-38px)" }}
+            className="whitespace-nowrap rounded-full px-3 py-1 text-[13px] text-ink"
+            style={{ background: dev.color, transform: "translateY(-38px)" }}
           >
-            {isActive ? "● " : ""}
+            {isActive && <span className="mr-1.5 inline-block h-2 w-2 rounded-full bg-ink align-middle" aria-hidden />}
             {dev.short}
           </div>
         </Html>
@@ -447,7 +447,7 @@ function VitalsModule({ active, reduceMotion }: { active: boolean; reduceMotion?
     <group>
       <mesh ref={cuff} position={[0.34, 1.28, 0.12]} rotation-z={-0.12}>
         <cylinderGeometry args={[0.085, 0.085, 0.16, 24]} />
-        <meshStandardMaterial color="#26334f" emissive={color} emissiveIntensity={active ? 0.5 : 0.05} />
+        <meshStandardMaterial color="#3A3D37" emissive={color} emissiveIntensity={active ? 0.5 : 0.05} />
       </mesh>
       {/* pulse oximeter clip on right hand */}
       <mesh position={[0.38, 0.86, 0.16]}>
@@ -539,7 +539,7 @@ function BloodAnalyzer({ active, reduceMotion, progress }: { active: boolean; re
       </mesh>
       <mesh ref={rotor} position={[0, 0.19, 0]}>
         <cylinderGeometry args={[0.07, 0.07, 0.02, 24]} />
-        <meshStandardMaterial color="#334" metalness={0.8} roughness={0.2} />
+        <meshStandardMaterial color="#2C2E2A" metalness={0.3} roughness={0.4} />
       </mesh>
       <mesh ref={cart} position={[0.22, 0.0, 0.1]}>
         <boxGeometry args={[0.1, 0.02, 0.05]} />
@@ -559,7 +559,7 @@ function EnvironmentPanel({ active }: { active: boolean }) {
       {Array.from({ length: 5 }).map((_, i) => (
         <mesh key={i} position={[-0.12 + i * 0.06, 0.02, 0.025]}>
           <circleGeometry args={[0.018, 16]} />
-          <Glow color={i === 0 ? "#4ade80" : color} active={active || i === 0} intensity={1.4} />
+          <Glow color={i === 0 ? "#1E6B35" : color} active={active || i === 0} intensity={1.4} />
         </mesh>
       ))}
     </group>

@@ -9,3 +9,4 @@ model_weights/
 *.db-wal
 *.db-shm
 voice_samples/
+.claude/skills/impeccable/scripts/bin/

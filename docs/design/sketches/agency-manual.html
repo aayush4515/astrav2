@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Agency Manual — ASTRA check-in</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1440px;height:900px;overflow:hidden}
+body{background:#fff;color:#111;font-family:Helvetica,"Helvetica Neue",Arial,sans-serif;padding:40px 48px;display:grid;grid-template-columns:repeat(12,1fr);grid-template-rows:56px 1fr;column-gap:24px;row-gap:28px}
+header{grid-column:1/-1;display:flex;align-items:flex-end;justify-content:space-between;border-bottom:3px solid #111;padding-bottom:12px}
+.word{font-size:34px;font-weight:700;letter-spacing:-.02em;color:#E03C31}
+header nav{display:flex;gap:28px;font-size:14px}
+header nav span{color:#8C8C8C}
+header nav b{color:#111}
+.em{background:#E03C31;color:#fff;font-weight:700;font-size:14px;padding:8px 16px}
+.left{grid-column:1/8;display:flex;flex-direction:column;gap:22px}
+.kick{font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#E03C31}
+h1{font-size:96px;font-weight:700;letter-spacing:-.04em;line-height:.92}
+.lede{font-size:22px;max-width:640px;line-height:1.35}
+table{border-collapse:collapse;width:100%;font-size:16px;margin-top:8px}
+th{text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#8C8C8C;border-bottom:1px solid #111;padding:8px 0;font-weight:700}
+td{border-bottom:1px solid #ddd;padding:12px 0}
+td.num{font-size:24px;font-weight:700}
+td.ok{color:#2c7a3f}
+.right{grid-column:8/-1;display:flex;flex-direction:column;gap:18px}
+.frame{flex:1;border:1px solid #111;position:relative;display:flex;align-items:flex-end;justify-content:center;background:#f4f4f4}
+.frame .lbl{position:absolute;top:10px;left:12px;font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#8C8C8C}
+.booth{width:240px;height:460px;border:2px solid #111;border-radius:120px 120px 0 0;margin-bottom:40px;position:relative}
+.suit{position:absolute;left:84px;top:120px;width:72px;height:260px;background:#fff;border:2px solid #111;border-radius:36px 36px 12px 12px}
+.cuff{position:absolute;left:150px;top:210px;width:30px;height:20px;background:#E03C31}
+.say{border-top:3px solid #111;padding-top:12px;font-size:19px;line-height:1.4}
+.say small{display:block;font-size:12px;font-weight:700;letter-spacing:.08em;color:#E03C31;margin-bottom:4px}
+</style></head><body>
+<header><span class="word">astra</span><nav><span>Identity</span><span>Face</span><b>Vitals</b><span>Chemistry</span><span>Questions</span><span>Summary</span></nav><span class="em">Emergency</span></header>
+<section class="left">
+  <div class="kick">Step 3 · Vitals module · Dr. Priya Nair</div>
+  <h1>Measuring blood pressure.</h1>
+  <p class="lede">Keep your arm relaxed. Heart rate, blood pressure and blood oxygen are compared with your own last 21 days.</p>
+  <table>
+    <tr><th>Measurement</th><th>Now</th><th>Usual for you</th><th>Status</th></tr>
+    <tr><td>Heart rate</td><td class="num">64 bpm</td><td>66 bpm</td><td class="ok">Normal</td></tr>
+    <tr><td>Blood pressure</td><td class="num">108/69</td><td>108/69</td><td class="ok">Normal</td></tr>
+    <tr><td>Blood oxygen</td><td class="num">98 %</td><td>98 %</td><td class="ok">Normal</td></tr>
+    <tr><td>Sleep (wearable)</td><td class="num">5.6 h</td><td>7.6 h</td><td>Watch</td></tr>
+  </table>
+</section>
+<section class="right">
+  <div class="frame"><span class="lbl">Booth · vitals module active</span><div class="booth"><div class="suit"></div><div class="cuff"></div></div></div>
+  <div class="say"><small>ASTRA</small>Measuring heart rate, blood pressure, and blood oxygen. Keep your arm relaxed.</div>
+</section>
+</body></html>

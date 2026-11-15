@@ -17,7 +17,7 @@ def _env(name: str, default: str) -> str:
 @dataclass(frozen=True)
 class Settings:
     database_url: str = _env("DATABASE_URL", f"sqlite:///{BACKEND_DIR / 'data' / 'astra.db'}")
-    models_dir: Path = Path(_env("MODELS_DIR", str(PROJECT_DIR / "models")))
+    models_dir: Path = Path(_env("MODELS_DIR", str(PROJECT_DIR / "model_weights")))
 
     # Face recognition (OpenCV YuNet detector + SFace recognizer).
     # SFace's published cosine threshold is 0.363; we are deliberately stricter.

@@ -11,7 +11,7 @@ import sys
 import urllib.request
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent / "models"
+ROOT = Path(__file__).resolve().parent.parent / "model_weights"
 
 FACE = {
     "face/face_detection_yunet_2023mar.onnx":

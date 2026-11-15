@@ -1,17 +1,17 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { Camera as CameraIcon, LogOut, Power, ScanFace, ShieldAlert, UserPlus } from "lucide-react";
+import { LogOut, ScanFace, ShieldAlert } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useCamera } from "../hooks/useCamera";
 import { api } from "../services/api";
 import type { AuthSession, DeviceId, Insights } from "../types";
 import { BoothView } from "../features/booth/BoothView";
 import type { BoothPhase } from "../features/booth/Booth3D";
+import { StandbyPanel } from "../features/booth/StandbyPanel";
 import { StagePanel, ProgressSteps } from "../features/check-in/StagePanel";
 import { useCheckinFlow, type FlowState } from "../features/check-in/useCheckinFlow";
 import { DetailsPanel } from "../features/dashboard/DetailsPanel";
 import { useEmergency } from "../features/emergency/EmergencyContext";
-import { CameraView } from "../features/facial-analysis/CameraView";
 import { useRecognitionLoop } from "../features/identity/useRecognitionLoop";
 import { Captions } from "../features/voice/Captions";
 import { VoiceOrb } from "../features/voice/VoiceOrb";
@@ -115,71 +115,33 @@ export default function AstraHome() {
     : recognition.result
       ? RECOG_TEXT[recognition.result.status] ?? RECOG_TEXT.no_face
       : RECOG_TEXT.no_face;
-  const boxes = (recognition.result?.faces ?? []).map((f) => f.bbox);
 
   return (
     <div className="relative flex min-h-[calc(100vh-64px)] flex-col">
       {!inSession ? (
         <section className="relative flex flex-1 flex-col">
-          <div className="absolute inset-0">
-            <BoothView activeDevice={recognition.result?.status === "matching" ? "face_camera" : null} phase={recognition.result?.status === "matching" ? "identifying" : "standby"} selected={selectedDevice} onSelect={setSelectedDevice} />
+          {/* Booth fills the screen on mobile and the right ~60% on desktop. */}
+          <div className="absolute inset-x-0 top-0 h-[46%] lg:inset-y-0 lg:left-[38%] lg:right-0 lg:h-auto">
+            <BoothView
+              activeDevice={recognition.result?.status === "matching" ? "face_camera" : null}
+              phase={recognition.result?.status === "matching" ? "identifying" : "standby"}
+              selected={selectedDevice}
+              onSelect={setSelectedDevice}
+            />
           </div>
-          <div className="pointer-events-none relative z-10 mt-auto flex flex-col items-center gap-4 bg-gradient-to-t from-void via-void/80 to-transparent px-6 pb-10 pt-28 text-center">
-            <AnimatePresence mode="wait">
-              <motion.h1
-                key={boothActive ? recog.text : "inactive"}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                className="text-3xl font-light tracking-tight md:text-5xl"
-                style={{ color: boothActive ? recog.color : undefined }}
-              >
-                {boothActive ? recog.text : "ASTRA health booth"}
-              </motion.h1>
-            </AnimatePresence>
-            {boothActive && recognition.result?.status === "unknown" && (
-              <p className="pointer-events-auto text-sm text-ink-muted">
-                Not enrolled yet?{" "}
-                <Link to="/enroll" className="text-cyan-soft underline">
-                  One-time enrollment
-                </Link>
-              </p>
-            )}
-            {recognition.engineError && <p className="text-sm text-caution">Face engine unavailable: {recognition.engineError}</p>}
-            {!boothActive && (
-              <div className="pointer-events-auto flex flex-col items-center gap-3">
-                <p className="max-w-md text-sm text-ink-muted">
-                  Activate stand-by once to allow the camera and voice. After that, enrolled astronauts are recognized automatically — no login, no buttons.
-                </p>
-                <button className="btn-primary px-6 py-3 text-base" onClick={activate}>
-                  <Power size={18} /> Activate booth
-                </button>
-                {camera.error && <p className="text-sm text-caution">{camera.error}</p>}
-              </div>
-            )}
-            {boothActive && needsGesture && !voice.unlocked && (
-              <button className="pointer-events-auto text-xs text-ink-faint underline" onClick={() => voice.unlock().then(() => setNeedsGesture(false))}>
-                Tap once to enable ASTRA's voice (browser audio policy)
-              </button>
-            )}
-          </div>
-          {boothActive && (
-            <div className="absolute bottom-6 right-6 z-10 hidden w-56 md:block">
-              <CameraView camera={camera} boxes={boxes} boxColor={recog.color} className="aspect-[4/3]" label="Stand-by" />
-              <div className="mt-2 flex justify-between text-[11px] text-ink-faint">
-                <span className="flex items-center gap-1">
-                  <CameraIcon size={11} /> local processing only
-                </span>
-                <button className="hover:text-ink" onClick={deactivate}>
-                  Deactivate
-                </button>
-              </div>
-            </div>
-          )}
-          <div className="absolute bottom-6 left-6 z-10 flex gap-3 text-xs text-ink-faint">
-            <Link to="/enroll" className="flex items-center gap-1 hover:text-ink">
-              <UserPlus size={13} /> Enrollment
-            </Link>
+          <div className="pointer-events-none absolute inset-y-0 left-0 hidden w-[55%] bg-gradient-to-r from-void via-void/85 to-transparent lg:block" />
+          <div className="relative z-10 mt-auto flex min-h-[56%] flex-col bg-gradient-to-t from-void via-void to-void/0 px-6 pb-8 pt-16 lg:mt-0 lg:min-h-0 lg:w-[44%] lg:flex-1 lg:bg-none lg:px-12 lg:py-10 xl:px-16">
+            <StandbyPanel
+              camera={camera}
+              active={boothActive}
+              headline={recog}
+              recognition={recognition.result}
+              engineError={recognition.engineError}
+              needsVoiceGesture={boothActive && needsGesture && !voice.unlocked}
+              onActivate={activate}
+              onDeactivate={deactivate}
+              onEnableVoice={() => voice.unlock().then(() => setNeedsGesture(false))}
+            />
           </div>
         </section>
       ) : (
@@ -200,28 +162,43 @@ function CheckinLayout({ flow, camera, onEnd, onDetails, insights, setDetails }:
   const phase = boothPhase(flow.stage);
   const compactBooth = phase === "conversation" || phase === "results";
   return (
-    <section className="relative grid flex-1 gap-4 p-4 lg:grid-cols-[1.25fr_1fr] lg:p-6">
+    <section className={`relative grid flex-1 gap-4 p-4 transition-[grid-template-columns] duration-500 lg:h-[calc(100vh-64px)] lg:grid-rows-[minmax(0,1fr)] lg:p-6 ${compactBooth ? "lg:grid-cols-[0.8fr_1.2fr]" : "lg:grid-cols-[1.25fr_1fr]"}`}>
       <motion.div layout className={`panel relative overflow-hidden ${compactBooth ? "min-h-[260px] lg:min-h-0" : "min-h-[380px]"}`}>
         <BoothView activeDevice={flow.activeDevice} phase={phase} progress={flow.blood?.phase === "analyzing" ? 0.6 : 0} showInfo={false} />
-        <div className="absolute left-4 top-4 flex flex-col gap-1">
-          <span className="label">{flow.session?.method === "operator_recovery" ? "Operator recovery session" : "Face-authenticated"}</span>
-          <span className="text-xl font-semibold">{flow.checkin?.astronaut.display_name ?? flow.session?.display_name}</span>
+        <div className="pointer-events-none absolute inset-x-0 top-0 flex items-center gap-3 bg-gradient-to-b from-void/90 to-transparent p-4 pb-10">
+          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-cyan-glow/15 text-sm font-semibold text-cyan-soft ring-1 ring-cyan-glow/40">
+            {(flow.session?.preferred_name ?? "?").slice(0, 1).toUpperCase()}
+          </span>
+          <div className="leading-tight">
+            <div className="text-lg font-semibold">{flow.checkin?.astronaut.display_name ?? flow.session?.display_name}</div>
+            <div className="label flex items-center gap-1.5">
+              {flow.session?.method === "operator_recovery" ? (
+                <>
+                  <ShieldAlert size={11} className="text-caution" /> Operator recovery session
+                </>
+              ) : (
+                <>
+                  <ScanFace size={11} className="text-ok" /> Face-authenticated
+                </>
+              )}
+            </div>
+          </div>
         </div>
         {flow.activity && (
-          <div className="absolute bottom-4 left-4 right-4 flex items-center gap-2">
-            <ScanFace size={14} className="text-cyan-glow" />
-            <span className="text-sm text-ink-muted">{flow.activity}</span>
+          <div className="pointer-events-none absolute bottom-4 left-4 flex items-center gap-2 rounded-full border border-line bg-void/70 px-3 py-1.5 backdrop-blur">
+            <span className={`h-1.5 w-1.5 rounded-full ${flow.activeDevice ? "animate-breathe bg-cyan-glow" : "bg-ink-faint"}`} />
+            <span className="text-xs text-ink-muted">{flow.activity}</span>
           </div>
         )}
       </motion.div>
       <div className="flex min-h-0 flex-col gap-4">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-6">
           <ProgressSteps stage={flow.stage} />
-          <button className="btn-ghost px-3 py-1.5 text-xs" onClick={onEnd}>
+          <button className="btn-ghost shrink-0 px-3 py-1.5 text-xs" onClick={onEnd}>
             <LogOut size={13} /> End session
           </button>
         </div>
-        <div className="panel flex-1 overflow-y-auto p-5">
+        <div className="panel flex flex-1 flex-col overflow-y-auto p-5">
           <StagePanel flow={flow} camera={camera} onDetails={onDetails} />
         </div>
         {flow.stage !== "VOICE_QUESTIONNAIRE" && flow.stage !== "PROCESSING" && (
@@ -232,11 +209,6 @@ function CheckinLayout({ flow, camera, onEnd, onDetails, insights, setDetails }:
             </div>
           </div>
         )}
-        {flow.stage === "VOICE_QUESTIONNAIRE" && (
-          <div className="px-2">
-            <Captions max={2} />
-          </div>
-        )}
         {flow.faults.length > 0 && (
           <div className="flex items-start gap-2 text-xs text-caution">
             <ShieldAlert size={14} /> {flow.faults.join(" · ")}
@@ -245,7 +217,19 @@ function CheckinLayout({ flow, camera, onEnd, onDetails, insights, setDetails }:
       </div>
       <AnimatePresence>
         {flow.details.open && (
+          <motion.div
+            key="backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-30 bg-void/60 backdrop-blur-[2px]"
+            onClick={() => setDetails({ open: false })}
+            aria-hidden
+          />
+        )}
+        {flow.details.open && (
           <motion.aside
+            key="drawer"
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}

@@ -1,4 +1,4 @@
-import { Html, OrbitControls } from "@react-three/drei";
+import { ContactShadows, Html, OrbitControls, Stars } from "@react-three/drei";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Suspense, useMemo, useRef, useState, type ReactNode } from "react";
 import * as THREE from "three";
@@ -18,9 +18,9 @@ interface BoothProps {
   progress?: number;
 }
 
-const HULL = new THREE.MeshStandardMaterial({ color: "#1a2438", metalness: 0.65, roughness: 0.35 });
-const HULL_LIGHT = new THREE.MeshStandardMaterial({ color: "#c9d3e6", metalness: 0.35, roughness: 0.45 });
-const SUIT = new THREE.MeshStandardMaterial({ color: "#e7ebf3", metalness: 0.05, roughness: 0.7 });
+const HULL = new THREE.MeshStandardMaterial({ color: "#2b3854", metalness: 0.6, roughness: 0.32 });
+const HULL_LIGHT = new THREE.MeshStandardMaterial({ color: "#d3dcec", metalness: 0.35, roughness: 0.4 });
+const SUIT = new THREE.MeshStandardMaterial({ color: "#eef1f7", metalness: 0.05, roughness: 0.62 });
 const SUIT_DARK = new THREE.MeshStandardMaterial({ color: "#7d8aa3", metalness: 0.2, roughness: 0.6 });
 const VISOR = new THREE.MeshStandardMaterial({ color: "#0b1530", metalness: 0.9, roughness: 0.1, emissive: "#103050", emissiveIntensity: 0.3 });
 
@@ -47,16 +47,22 @@ function Scene({ activeDevice, phase, selected, onSelect, interactive = true, re
   const focusId = activeDevice ?? selected ?? null;
   return (
     <>
-      <ambientLight intensity={0.25 * dim + 0.1} />
-      <hemisphereLight args={["#6aa8ff", "#0a0f1c", 0.35 * dim]} />
-      <directionalLight position={[4, 6, 5]} intensity={1.1 * dim} castShadow shadow-mapSize={[1024, 1024]} />
+      <ambientLight intensity={0.3 * dim + 0.1} />
+      <hemisphereLight args={["#7fb4ff", "#0a0f1c", 0.5 * dim]} />
+      <directionalLight position={[4, 6, 5]} intensity={1.4 * dim} castShadow shadow-mapSize={[1024, 1024]} />
+      {/* cool rim light separates the astronaut from the dark shell */}
+      <spotLight position={[-2.5, 3.5, -2.5]} angle={0.6} penumbra={0.8} intensity={phase === "emergency" ? 0 : 18 * dim} color="#5ee7ff" distance={9} />
+      <Stars radius={70} depth={40} count={2200} factor={3} saturation={0} fade speed={reduceMotion ? 0 : 0.4} />
+      <ContactShadows position={[0, 0.125, 0]} opacity={0.55} scale={3} blur={2.4} far={2} resolution={512} />
       <pointLight position={[0, 3.1, 0.6]} intensity={phase === "emergency" ? 0 : 1.2 * dim} color="#5ee7ff" distance={6} />
       {phase === "emergency" && <pointLight position={[0, 3, 1]} intensity={2.5} color="#ff3b3b" distance={7} />}
 
-      <CameraRig focus={focusId ? BOOTH_DEVICES[focusId].focus : null} reduceMotion={reduceMotion} />
+      <CameraRig focus={focusId ? BOOTH_DEVICES[focusId].focus : null} wide={phase === "conversation" || phase === "results"} reduceMotion={reduceMotion} />
       <OrbitControls
         enabled={interactive}
         enablePan={false}
+        autoRotate={phase === "standby" && !reduceMotion && !selected}
+        autoRotateSpeed={0.35}
         minDistance={3}
         maxDistance={9}
         minPolarAngle={0.5}
@@ -98,14 +104,14 @@ function Scene({ activeDevice, phase, selected, onSelect, interactive = true, re
 
 /* ------------------------------------------------------------------ camera */
 
-function CameraRig({ focus, reduceMotion }: { focus: [number, number, number] | null; reduceMotion?: boolean }) {
+function CameraRig({ focus, wide, reduceMotion }: { focus: [number, number, number] | null; wide?: boolean; reduceMotion?: boolean }) {
   const { camera, controls } = useThree() as unknown as { camera: THREE.PerspectiveCamera; controls: { target: THREE.Vector3; update: () => void } | null };
   const target = useMemo(() => new THREE.Vector3(), []);
   const desiredPos = useMemo(() => new THREE.Vector3(), []);
   const last = useRef<string>("");
   const animating = useRef(0);
   useFrame((_, dt) => {
-    const key = focus ? focus.join(",") : "home";
+    const key = focus ? focus.join(",") : wide ? "wide" : "home";
     if (key !== last.current) {
       last.current = key;
       animating.current = 1.6; // seconds of guided motion; afterwards the user can orbit freely
@@ -114,7 +120,8 @@ function CameraRig({ focus, reduceMotion }: { focus: [number, number, number] | 
     animating.current -= dt;
     const f = focus ?? [0, 1.2, 0];
     target.set(f[0], f[1], f[2]);
-    const dist = focus ? 3.1 : 6.2;
+    // Narrow layouts (conversation/results) need more distance to keep the whole booth in frame.
+    const dist = focus ? 4.4 : wide ? 8.2 : 6.4;
     const dir = new THREE.Vector3(0.55, 0.28, 1).normalize();
     desiredPos.copy(target).addScaledVector(dir, dist);
     const k = reduceMotion ? 1 : 1 - Math.exp(-dt * 3);
@@ -154,13 +161,20 @@ function Structure({ phase, reduceMotion }: { phase: BoothPhase; reduceMotion?: 
       {/* curved back shell */}
       <mesh position={[0, 1.45, 0]} castShadow receiveShadow>
         <cylinderGeometry args={[1.45, 1.45, 2.9, 64, 1, true, Math.PI * 0.62, Math.PI * 0.76]} />
-        <meshStandardMaterial color="#121b2e" metalness={0.6} roughness={0.4} side={THREE.DoubleSide} />
+        <meshStandardMaterial color="#1c2842" metalness={0.55} roughness={0.38} side={THREE.DoubleSide} />
       </mesh>
+      {/* panel seams on the shell */}
+      {[0.75, 1.55, 2.35].map((y) => (
+        <mesh key={y} position={[0, y, 0]} rotation={[Math.PI / 2, 0, Math.PI * 1.12]}>
+          <torusGeometry args={[1.44, 0.006, 6, 64, Math.PI * 0.76]} />
+          <meshStandardMaterial color={accent} emissive={accent} emissiveIntensity={0.25} toneMapped={false} />
+        </mesh>
+      ))}
       {/* inner light strips */}
       {[-0.95, 0.95].map((x) => (
         <mesh key={x} position={[x, 1.45, -1.02]} rotation-y={x > 0 ? -0.75 : 0.75}>
-          <boxGeometry args={[0.03, 2.4, 0.03]} />
-          <meshStandardMaterial color={accent} emissive={accent} emissiveIntensity={1.2} toneMapped={false} />
+          <boxGeometry args={[0.015, 2.4, 0.015]} />
+          <meshStandardMaterial color={accent} emissive={accent} emissiveIntensity={0.55} transparent opacity={0.6} toneMapped={false} />
         </mesh>
       ))}
       {/* arch */}
@@ -227,6 +241,28 @@ function Astronaut({ active, reduceMotion, progress }: { active: DeviceId | null
       </mesh>
       <mesh position={[0.33, 1.15, 0.12]} rotation-z={-0.12} castShadow material={SUIT}>
         <capsuleGeometry args={[0.065, 0.5, 6, 16]} />
+      </mesh>
+      {/* shoulders, hands, life-support pack and collar */}
+      {[-0.3, 0.3].map((x) => (
+        <mesh key={`s${x}`} position={[x, 1.42, 0.1]} castShadow material={SUIT}>
+          <sphereGeometry args={[0.09, 24, 24]} />
+        </mesh>
+      ))}
+      {[-0.365, 0.365].map((x) => (
+        <mesh key={`h${x}`} position={[x, 0.83, 0.15]} castShadow material={SUIT_DARK}>
+          <sphereGeometry args={[0.05, 16, 16]} />
+        </mesh>
+      ))}
+      <mesh position={[0, 1.24, -0.14]} castShadow material={SUIT_DARK}>
+        <boxGeometry args={[0.36, 0.46, 0.14]} />
+      </mesh>
+      <mesh position={[0, 1.52, 0.1]} rotation-x={Math.PI / 2} material={HULL_LIGHT}>
+        <torusGeometry args={[0.1, 0.022, 10, 32]} />
+      </mesh>
+      {/* chest status light mirrors the booth state */}
+      <mesh position={[0.07, 1.31, 0.335]}>
+        <circleGeometry args={[0.016, 16]} />
+        <meshStandardMaterial color="#5ee7ff" emissive="#5ee7ff" emissiveIntensity={active ? 2.5 : 0.8} toneMapped={false} />
       </mesh>
       {/* head + visor-less face plate (booth is shirt-sleeve environment) */}
       <mesh position={[0, 1.66, 0.1]} castShadow material={SUIT}>

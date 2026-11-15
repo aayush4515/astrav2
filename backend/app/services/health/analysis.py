@@ -145,8 +145,9 @@ def analyze_checkin(db: Session, checkin: CheckIn, *, persist: bool = True, mult
     _safety_rules(metrics, subj, findings)
     _pattern_rules(db, astro, at, metrics, subj, facial, voc, env, labs, findings)
     if checkin.faults:
-        for fault in checkin.faults:
-            findings.append(Finding("measurement", "info", "data_quality", "Measurement unavailable",
+        for fault in dict.fromkeys(checkin.faults):
+            what = "Facial scan" if fault.lower().startswith("facial scan") else fault.split(" did not")[0]
+            findings.append(Finding("measurement", "info", "data_quality", f"{what} unavailable",
                                     f"{fault}. Readings from this device are missing from today's assessment.",
                                     guidance=["repeat_measurement"]))
     mv = _multivariate(db, astro.id, at, metrics) if multivariate else None

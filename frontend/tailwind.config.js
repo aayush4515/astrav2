@@ -15,8 +15,8 @@ export default {
         ink: { DEFAULT: "#e8eefc", muted: "#8b97b3", faint: "#5b6785" },
       },
       fontFamily: {
-        sans: ["Inter", "system-ui", "-apple-system", "Segoe UI", "Roboto", "sans-serif"],
-        mono: ["JetBrains Mono", "ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
+        sans: ["Inter Variable", "Inter", "system-ui", "-apple-system", "Segoe UI", "Roboto", "sans-serif"],
+        mono: ["JetBrains Mono Variable", "JetBrains Mono", "ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
       },
       keyframes: {
         breathe: { "0%,100%": { opacity: "0.55" }, "50%": { opacity: "1" } },

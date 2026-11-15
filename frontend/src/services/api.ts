@@ -83,6 +83,9 @@ async function request<T>(path: string, opts: { method?: string; body?: unknown;
 
 export interface HealthStatus {
   status: string;
+  comm_link?: LinkState;
+  environment?: Record<string, { value: number; unit: string }>;
+  crew?: { total: number; face_enrolled: number };
   mission: { name: string; day: number };
   engines: Record<string, { ready: boolean; error?: string | null; loading?: boolean; engine?: string }>;
 }

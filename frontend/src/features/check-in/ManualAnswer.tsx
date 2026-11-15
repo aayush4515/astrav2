@@ -8,7 +8,7 @@ import { voice } from "../voice/VoiceEngine";
  * Accessible alternative input. Visible only while ASTRA is listening; answering here resolves the
  * same listen() call the microphone would, so no collected data is lost if speech fails.
  */
-export function ManualAnswer({ question, mode = "question" }: { question?: Question | null; mode?: "question" | "confirm" | "command" | "ready" }) {
+export function ManualAnswer({ question, mode = "question" }: { question?: Question | null; mode?: "question" | "confirm" | "command" | "ready" | "greeting" }) {
   const v = useVoice();
   const [text, setText] = useState("");
   const [open, setOpen] = useState(false);
@@ -22,6 +22,8 @@ export function ManualAnswer({ question, mode = "question" }: { question?: Quest
       ? ["Yes", "Not now", "Remind me later"]
       : mode === "ready"
         ? ["Sample ready"]
+      : mode === "greeting"
+        ? ["Cancel"]
       : mode === "command"
         ? ["Explain", "Show details", "What changed since yesterday?", "End check-in"]
         : question?.kind === "rating"

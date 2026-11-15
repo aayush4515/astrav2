@@ -1,4 +1,5 @@
-import { AlertTriangle, ArrowRight, CheckCheck, Radio, RadioTower, Satellite, WifiOff } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { AlertTriangle, CheckCheck, Radio, RadioTower, Satellite, WifiOff } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { api } from "../services/api";
 import type { CommMessage, Insights, LinkState, StatusLevel } from "../types";
@@ -55,7 +56,9 @@ function Console() {
   }, [selected]);
 
   if (!ov) return <div className="p-8 label">{error ?? "Connecting to ground segment…"}</div>;
-  const activeEmergency = ov.emergencies.find((m) => m.status === "delivered");
+  // Only critical (activation/update) messages raise the red banner; "resolved onboard" notices are informational.
+  const activeEmergency = ov.emergencies.find((m) => m.status === "delivered" && m.priority === "critical");
+  const resolvedNotice = ov.emergencies.find((m) => m.status === "delivered" && m.priority !== "critical");
 
   return (
     <div className="flex flex-col gap-5 p-5 lg:p-6">
@@ -81,6 +84,19 @@ function Console() {
           </div>
           <button className="btn-danger" onClick={async () => (await api.mcAck(activeEmergency.id, "Flight Surgeon"), refresh())}>
             <CheckCheck size={16} /> Acknowledge
+          </button>
+        </div>
+      )}
+
+      {!activeEmergency && resolvedNotice && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-ok/30 bg-ok/5 px-4 py-3">
+          <div className="flex items-center gap-3 text-sm">
+            <CheckCheck size={16} className="text-ok" />
+            <span>{resolvedNotice.subject}</span>
+            <span className="text-xs text-ink-faint">received {relTime(resolvedNotice.delivered_at)}</span>
+          </div>
+          <button className="btn-ghost px-3 py-1.5 text-xs" onClick={async () => (await api.mcAck(resolvedNotice.id, "Flight Surgeon"), refresh())}>
+            Acknowledge
           </button>
         </div>
       )}
@@ -117,8 +133,7 @@ function Console() {
         })}
       </section>
 
-      <div className="grid gap-5 xl:grid-cols-[1fr_1.3fr]">
-        <section className="panel overflow-hidden">
+      <section className="panel overflow-hidden">
           <div className="flex items-center justify-between border-b border-line px-4 py-3">
             <span className="label">Store-and-forward message queue</span>
             <span className="text-xs text-ink-faint">Persisted locally in SQLite</span>
@@ -153,8 +168,27 @@ function Console() {
             </table>
           </div>
         </section>
-        <section className="panel min-h-[520px] overflow-hidden">
-          {selected ? (
+      <AnimatePresence>
+        {selected && (
+          <motion.div
+            key="backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-30 bg-void/60 backdrop-blur-[2px]"
+            onClick={() => setSelected(null)}
+            aria-hidden
+          />
+        )}
+        {selected && (
+          <motion.aside
+            key="drawer"
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", damping: 30, stiffness: 260 }}
+            className="fixed inset-y-0 right-0 z-40 w-full max-w-3xl border-l border-line bg-deep/95 backdrop-blur-xl"
+          >
             <DetailsPanel
               insights={insights}
               section={section}
@@ -166,14 +200,9 @@ function Console() {
               onClose={() => setSelected(null)}
               title="Medical history (operator view)"
             />
-          ) : (
-            <div className="flex h-full flex-col items-center justify-center gap-2 p-10 text-center text-ink-muted">
-              <ArrowRight />
-              Select a crew member to review full trends, facial, VOC and laboratory history.
-            </div>
-          )}
-        </section>
-      </div>
+          </motion.aside>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

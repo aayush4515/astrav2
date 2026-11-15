@@ -72,6 +72,11 @@ def _require_active(ci: CheckIn) -> None:
         raise CheckinError(f"Check-in is {ci.status}")
 
 
+def _add_fault(ci: CheckIn, text: str) -> None:
+    if text not in (ci.faults or []):  # a resumed check-in must not repeat the same fault
+        ci.faults = [*(ci.faults or []), text]
+
+
 def _ctx(ci: CheckIn, astro: Astronaut) -> CollectionContext:
     return CollectionContext(astronaut_id=astro.id, timestamp=ci.started_at, period=ci.period, scenario=astro.scenario)
 
@@ -99,7 +104,7 @@ def facial_frame(db: Session, astro: Astronaut, ci: CheckIn, img) -> dict:
 
 def skip_facial(db: Session, ci: CheckIn, reason: str) -> None:
     facial_scan.reset(ci.id)
-    ci.faults = [*ci.faults, f"Facial scan skipped: {reason}"]
+    _add_fault(ci, f"Facial scan skipped: {reason}")
     db.commit()
 
 
@@ -111,7 +116,7 @@ async def collect_device(db: Session, astro: Astronaut, ci: CheckIn, device_id: 
     try:
         readings = await sensors.acquire(device_id, _ctx(ci, astro))
     except SensorFault as exc:
-        ci.faults = [*ci.faults, str(exc)]
+        _add_fault(ci, str(exc))
         db.commit()
         return {"device": device_id, "status": "fault", "message": str(exc), "readings": []}
     # Re-collection (e.g. a resumed check-in) replaces this device's earlier readings instead of duplicating them.

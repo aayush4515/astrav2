@@ -13,10 +13,13 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api import checkins, emergency, identity, mission_control, voice
 from app.config import settings
+from app.database import session as dbs
+from app.models import Astronaut
 from app.models.base import utcnow
 from app.seed.seed import init_db
-from app.services.communications.queue import run_link_simulator
+from app.services.communications.queue import get_link, run_link_simulator
 from app.services.facial.landmarks import engine as landmark_engine
+from app.services.health.views import environment_latest
 from app.services.identity.face_engine import engine as face_engine
 from app.services.voice.stt import stt
 from app.services.voice.tts import tts
@@ -48,7 +51,18 @@ for r in (identity.router, checkins.router, voice.router, emergency.router, miss
 @app.get("/api/health")
 def health():
     start = date.fromisoformat(settings.mission_start)
+    db = dbs.SessionLocal()
+    try:
+        link = get_link(db)
+        env = environment_latest(db)
+        crew = db.query(Astronaut).count()
+        enrolled = db.query(Astronaut).filter(Astronaut.face_enrolled.is_(True)).count()
+    finally:
+        db.close()
     return {
+        "comm_link": link,
+        "environment": env,
+        "crew": {"total": crew, "face_enrolled": enrolled},
         "status": "ok",
         "mission": {"name": settings.mission_name, "day": (utcnow().date() - start).days + 1},
         "engines": {

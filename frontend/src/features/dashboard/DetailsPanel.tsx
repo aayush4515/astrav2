@@ -80,17 +80,19 @@ function SimTag({ simulated }: { simulated: boolean }) {
 }
 
 function MetricRow({ k, m, onClick }: { k: string; m: MetricState; onClick?: () => void }) {
+  const usual = m.baseline != null ? `usual ${Number(m.baseline.toFixed(1))}` : m.status === "context_excluded" ? "post-exercise" : "no baseline yet";
   return (
-    <button onClick={onClick} className="flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2 text-left hover:bg-white/5" data-metric={k}>
-      <span className="flex items-center gap-2">
-        <span className="h-2 w-2 rounded-full" style={{ background: METRIC_STATUS_COLOR[m.status] }} />
-        <span className="text-sm">{m.label}</span>
+    <button onClick={onClick} className="group flex w-full items-center justify-between gap-4 rounded-xl px-3 py-2.5 text-left transition hover:bg-white/5" data-metric={k}>
+      <span className="flex min-w-0 items-center gap-2.5">
+        <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: METRIC_STATUS_COLOR[m.status] }} />
+        <span className="truncate text-sm group-hover:text-ink">{m.label}</span>
       </span>
-      <span className="flex items-center gap-3">
+      <span className="shrink-0 text-right leading-tight">
         <span className="font-mono text-sm">
-          {m.value} <span className="text-ink-faint">{m.unit}</span>
+          {m.value}
+          <span className="ml-1 text-xs text-ink-faint">{m.unit}</span>
         </span>
-        <span className="w-24 text-right font-mono text-[11px] text-ink-faint">{m.baseline != null ? `usual ${m.baseline}` : m.status === "context_excluded" ? "post-exercise" : "no baseline"}</span>
+        <span className="block font-mono text-[10px] text-ink-faint">{usual}</span>
       </span>
     </button>
   );
@@ -100,7 +102,7 @@ function Overview({ insights, onSection }: { insights: Insights; onSection: Prop
   const latest = insights.latest;
   const metrics = (latest?.metrics ?? {}) as Record<string, MetricState>;
   return (
-    <div className="grid gap-5 lg:grid-cols-2">
+    <div className="grid gap-5 xl:grid-cols-[1.2fr_1fr]">
       <section className="panel p-4">
         <div className="label">Latest measurements · {fmtTime(latest?.t)}</div>
         <div className="mt-2 divide-y divide-line">
@@ -276,7 +278,8 @@ function Facial({ insights }: { insights: Insights }) {
         <section className="panel p-4">
           <div className="label">Latest scan · {fmtTime(latest.t)}</div>
           <p className="mt-2 text-sm">{latest.comparison.explanation ?? latest.comparison.message}</p>
-          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+          <div className="mt-3 flex justify-end font-mono text-[10px] uppercase tracking-[0.14em] text-ink-faint">now vs reference</div>
+          <div className="mt-1 grid gap-2 sm:grid-cols-2">
             {Object.entries(latest.comparison.features ?? {}).map(([k, f]) => (
               <button key={k} onClick={() => setSel(k)} className={`flex justify-between rounded-lg px-3 py-2 text-left text-sm ${sel === k ? "bg-white/10" : "bg-white/[0.03]"}`}>
                 <span style={{ color: f.flagged ? "#fbbf24" : undefined }}>{f.label}</span>
@@ -299,7 +302,9 @@ function Facial({ insights }: { insights: Insights }) {
         <div className="mt-3">
           <TrendChart points={series} unit={insights.facial_features[sel].unit} decimals={3} color="#5ee7ff" />
         </div>
-        <p className="mt-1 text-xs text-ink-muted">{insights.facial_features[sel].description}</p>
+        <p className="mt-1 text-xs text-ink-muted">
+          {insights.facial_features[sel].description} Hollow markers are enrollment reference scans.
+        </p>
       </section>
       <p className="text-xs text-ink-faint">
         Measured from the real webcam with MediaPipe landmarks; only geometry numbers are stored, never images. A webcam cannot diagnose edema, intracranial pressure, stroke or eye disease.

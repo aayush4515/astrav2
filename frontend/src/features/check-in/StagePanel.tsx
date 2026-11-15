@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { CheckCircle2, CircleDashed, Loader2, XCircle } from "lucide-react";
+import { useMemo } from "react";
 import type { Camera } from "../../hooks/useCamera";
 import { BOOTH_DEVICES } from "../booth/devices";
 import { CameraView } from "../facial-analysis/CameraView";
@@ -12,20 +13,43 @@ import { STEPS, type FlowState } from "./useCheckinFlow";
 export function ProgressSteps({ stage }: { stage: FlowState["stage"] }) {
   const idx = STEPS.findIndex((s) => s.stages.includes(stage));
   return (
-    <ol className="flex items-center gap-1.5" aria-label="Check-in progress">
-      {STEPS.map((s, i) => (
-        <li key={s.key} className="flex items-center gap-1.5">
-          <span
-            className={`h-1.5 rounded-full transition-all ${i < idx ? "w-6 bg-ok" : i === idx ? "w-10 bg-cyan-glow" : "w-6 bg-white/10"}`}
-            aria-current={i === idx ? "step" : undefined}
-            title={s.label}
-          />
-        </li>
-      ))}
-      <span className="label ml-2">{STEPS[Math.max(0, idx)]?.label}</span>
+    <ol className="flex flex-1 items-center gap-2" aria-label="Check-in progress">
+      {STEPS.map((s, i) => {
+        const state = i < idx ? "done" : i === idx ? "current" : "todo";
+        return (
+          <li key={s.key} className="flex flex-1 flex-col gap-1.5" aria-current={state === "current" ? "step" : undefined}>
+            <span className="relative h-1 overflow-hidden rounded-full bg-white/10">
+              <motion.span
+                className={`absolute inset-y-0 left-0 rounded-full ${state === "done" ? "bg-ok" : "bg-cyan-glow"}`}
+                initial={false}
+                animate={{ width: state === "todo" ? "0%" : "100%" }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+              />
+            </span>
+            <span className={`hidden text-[10px] font-medium uppercase tracking-[0.14em] sm:block ${state === "current" ? "text-cyan-soft" : state === "done" ? "text-ink-muted" : "text-ink-faint"}`}>
+              {s.label}
+            </span>
+          </li>
+        );
+      })}
     </ol>
   );
 }
+
+const READING_LABEL: Record<string, string> = {
+  heart_rate: "Heart rate",
+  resting_heart_rate: "Resting HR",
+  hrv_rmssd: "HRV",
+  systolic_bp: "Systolic",
+  diastolic_bp: "Diastolic",
+  spo2: "SpO₂",
+  respiratory_rate: "Breathing",
+  body_temperature: "Temperature",
+  body_mass: "Mass",
+  sleep_duration: "Sleep",
+  sleep_efficiency: "Sleep efficiency",
+  exercise_minutes: "Exercise",
+};
 
 const STATUS_ICON = {
   pending: <CircleDashed size={16} className="text-ink-faint" />,
@@ -70,14 +94,17 @@ export function StagePanel({ flow, camera, onDetails }: { flow: FlowState; camer
                 <span className="chip bg-white/5 text-ink-faint">simulated</span>
               </div>
               {rs.length > 0 && (
-                <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 font-mono text-sm">
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 sm:grid-cols-3">
                   {rs.map((r) => (
-                    <span key={r.metric}>
-                      <span className="text-ink-faint">{r.metric.replace(/_/g, " ")} </span>
-                      {r.value} {r.unit}
-                    </span>
+                    <div key={r.metric} className="leading-tight">
+                      <div className="text-[10px] uppercase tracking-[0.14em] text-ink-faint">{READING_LABEL[r.metric] ?? r.metric}</div>
+                      <div className="font-mono text-base text-ink">
+                        {r.value}
+                        <span className="ml-1 text-xs text-ink-muted">{r.unit}</span>
+                      </div>
+                    </div>
                   ))}
-                </div>
+                </motion.div>
               )}
             </div>
           );
@@ -145,20 +172,10 @@ export function StagePanel({ flow, camera, onDetails }: { flow: FlowState; camer
       </div>
     );
   }
-  if (s === "VOICE_QUESTIONNAIRE") {
-    return (
-      <div className="flex flex-col items-center gap-6 py-4 text-center">
-        <span className="label">Question {flow.questionCount + 1}</span>
-        <h2 className="text-2xl font-medium leading-snug md:text-3xl">{flow.question?.text ?? "…"}</h2>
-        {flow.question?.hint && <p className="text-sm text-ink-muted">{flow.question.hint}</p>}
-        <VoiceOrb size={110} />
-        <ManualAnswer question={flow.question} />
-      </div>
-    );
-  }
+  if (s === "VOICE_QUESTIONNAIRE") return <QuestionView flow={flow} />;
   if (s === "PROCESSING") {
     return (
-      <div className="flex flex-col items-center gap-4 py-10 text-center">
+      <div className="flex flex-1 flex-col items-center justify-center gap-4 py-10 text-center">
         <VoiceOrb size={110} override="processing" />
         <p className="text-lg">Comparing today's data with your personal baseline…</p>
       </div>
@@ -176,10 +193,35 @@ export function StagePanel({ flow, camera, onDetails }: { flow: FlowState; camer
     return <p className="text-alert">Check-in failed: {flow.error}</p>;
   }
   return (
-    <div className="flex flex-col items-center gap-4 py-8">
-      <VoiceOrb size={100} />
-      <Captions max={2} />
-      <ManualAnswer mode="confirm" />
+    <div className="flex flex-1 flex-col items-center justify-center gap-5 py-8 text-center">
+      <VoiceOrb size={110} />
+      <h2 className="text-2xl font-medium md:text-3xl">{flow.stage === "IDENTITY_CONFIRMED" ? "Identity confirmed" : "Starting your assessment"}</h2>
+      <p className="max-w-sm text-ink-muted">Measurements begin automatically. Say “cancel” in the next few seconds to stop.</p>
+      <ManualAnswer mode="greeting" />
+    </div>
+  );
+}
+
+function QuestionView({ flow }: { flow: FlowState }) {
+  // Only show the answer transcribed for the current question, not the previous one.
+  const since = useMemo(() => Date.now(), [flow.question?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  return (
+    <div className="flex flex-1 flex-col items-center justify-center gap-7 py-6 text-center">
+      <span className="label">{flow.question ? `Question ${flow.questionCount + 1}` : "Health questions"}</span>
+      <motion.h2
+        key={flow.question?.id ?? "intro"}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="max-w-xl text-2xl font-medium leading-snug md:text-[2rem]"
+      >
+        {flow.question?.text ?? "A few quick questions — answer in your own words."}
+      </motion.h2>
+      {flow.question?.hint && <p className="-mt-3 text-sm text-ink-muted">{flow.question.hint}</p>}
+      <VoiceOrb size={120} />
+      <div className="min-h-[2rem] w-full max-w-xl">
+        <Captions max={1} only="astronaut" since={since} />
+      </div>
+      <ManualAnswer question={flow.question} />
     </div>
   );
 }

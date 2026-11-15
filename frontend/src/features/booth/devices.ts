@@ -60,7 +60,7 @@ export const BOOTH_DEVICES: Record<DeviceId, BoothDevice> = {
     description: "Microgravity mass measurement: a known spring force and the resulting acceleration give body mass (the SLAMMD principle).",
     measures: "Body mass",
     real: false,
-    focus: [0, 0.4, 0],
+    focus: [0, 0.85, 0],
     color: "#4ade80",
   },
   e_nose: {

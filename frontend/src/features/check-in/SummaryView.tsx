@@ -1,9 +1,17 @@
 import { motion } from "framer-motion";
 import { AlertTriangle, CalendarClock, CheckCircle2, ChevronDown, Info, Satellite } from "lucide-react";
 import type { AnalysisResult } from "../../types";
-import { SEVERITY_COLOR, STATUS_COLOR } from "../dashboard/format";
+import { METRIC_STATUS_COLOR, SEVERITY_COLOR, STATUS_COLOR } from "../dashboard/format";
 
 const ICON = { clear: CheckCircle2, watch: Info, review: AlertTriangle, urgent: AlertTriangle };
+
+const GLANCE: { key: string; label: string }[] = [
+  { key: "heart_rate", label: "Heart rate" },
+  { key: "systolic_bp", label: "Blood pressure" },
+  { key: "spo2", label: "SpO₂" },
+  { key: "body_temperature", label: "Temp" },
+  { key: "sleep_duration", label: "Sleep" },
+];
 
 /** Glanceable result: one status, at most three observations, one next action. */
 export function SummaryView({ result, onDetails }: { result: AnalysisResult; onDetails: () => void }) {
@@ -12,6 +20,7 @@ export function SummaryView({ result, onDetails }: { result: AnalysisResult; onD
   const obs = result.observations.filter((o) => o.severity !== "info").slice(0, 3);
   const notes = obs.length ? obs : result.observations.slice(0, 2);
   const next = result.guidance[0];
+  const metrics = result.metrics ?? {};
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col gap-5">
       <div className="flex items-center gap-4">
@@ -24,6 +33,25 @@ export function SummaryView({ result, onDetails }: { result: AnalysisResult; onD
             {result.status}
           </h2>
         </div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
+        {GLANCE.filter((g) => metrics[g.key]).map(({ key, label }) => {
+          const m = metrics[key];
+          const value = key === "systolic_bp" && metrics.diastolic_bp ? `${m.value}/${metrics.diastolic_bp.value}` : m.value;
+          return (
+            <div key={key} className="rounded-xl border border-line bg-white/[0.02] px-3 py-2.5">
+              <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.14em] text-ink-faint">
+                <span className="h-1.5 w-1.5 rounded-full" style={{ background: METRIC_STATUS_COLOR[m.status] }} />
+                {label}
+              </div>
+              <div className="mt-1 font-mono text-lg leading-none">
+                {value}
+                <span className="ml-1 text-[11px] text-ink-muted">{m.unit}</span>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {notes.length > 0 && (

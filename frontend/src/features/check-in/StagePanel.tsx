@@ -93,6 +93,7 @@ export function StagePanel({ flow, camera, onDetails }: { flow: FlowState; camer
                 </span>
                 <span className="chip bg-white/5 text-ink-faint">simulated</span>
               </div>
+              {dev && rs.length === 0 && <p className="mt-1 pl-6 text-xs text-ink-faint">{dev.measures}</p>}
               {rs.length > 0 && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 sm:grid-cols-3">
                   {rs.map((r) => (
@@ -116,6 +117,7 @@ export function StagePanel({ flow, camera, onDetails }: { flow: FlowState; camer
             </span>
             <span className="chip bg-caution/10 text-caution">experimental</span>
           </div>
+          {!flow.voc && <p className="mt-1 pl-6 text-xs text-ink-faint">{BOOTH_DEVICES.e_nose.measures} · 16 sensor channels</p>}
           {flow.voc && (
             <div className="mt-2 flex h-10 items-end gap-0.5">
               {flow.voc.channels.map((c, i) => (

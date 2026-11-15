@@ -182,7 +182,7 @@ export function useCheckinFlow({ camera, onEmergency }: Options) {
   const runFacialScan = useCallback(
     async (checkinId: string, signal: AbortSignal) => {
       patch({ stage: "FACIAL_SCAN", activeDevice: "face_camera", activity: "Facial geometry scan", facial: null });
-      await speak("Please look directly at the camera and keep a relaxed, neutral expression.", signal);
+      await speak("Facial scan for eyelid opening, facial symmetry, and brow and mouth alignment. Look at the camera with a relaxed face.", signal);
       if (camera.state !== "on") {
         await api.facialSkip(checkinId, "camera unavailable");
         patch((s) => ({ faults: [...s.faults, "Facial scan skipped: camera unavailable"] }));
@@ -233,11 +233,18 @@ export function useCheckinFlow({ camera, onEmergency }: Options) {
     async (start: CheckinStart, signal: AbortSignal) => {
       const plan = start.sensor_plan;
       patch({ stage: "SENSOR_COLLECTION", deviceStatus: Object.fromEntries(plan.map((p) => [p.device, "pending"])) });
+      // Each announcement names exactly what the device measures (see DEVICES in the backend catalog).
       const ANNOUNCE: Record<string, string> = {
-        wearable_sync: "Syncing your wearable's overnight data.",
-        vitals_module: "Measuring your vital signs. Keep your arm relaxed.",
-        thermal_module: "Thermal scan for temperature and breathing rate.",
+        wearable_sync: "Syncing your wearable: sleep, resting heart rate, heart-rate variability, and exercise.",
+        vitals_module: "Measuring heart rate, blood pressure, and blood oxygen. Keep your arm relaxed.",
+        thermal_module: "Thermal scan for body temperature and breathing rate.",
         mass_module: "Measuring body mass. Hold the handles and stay still.",
+      };
+      const MISSING: Record<string, string> = {
+        wearable_sync: "sleep, resting heart rate, and exercise data",
+        vitals_module: "heart rate, blood pressure, and oxygen saturation",
+        thermal_module: "temperature and breathing rate",
+        mass_module: "body mass",
       };
       for (const p of plan) {
         if (signal.aborted) throw new FlowAbort("cancel");
@@ -248,7 +255,8 @@ export function useCheckinFlow({ camera, onEmergency }: Options) {
           deviceStatus: { ...s.deviceStatus, [p.device]: res.status === "ok" ? "done" : "fault" },
           faults: res.status === "fault" ? [...s.faults, res.message ?? `${p.label} fault`] : s.faults,
         }));
-        if (res.status === "fault") await speak(`${p.label} did not respond. I'll note that and continue.`, signal);
+        if (res.status === "fault")
+          await speak(`The ${p.label.toLowerCase()} did not respond, so today's ${MISSING[p.device] ?? "readings"} will be missing. I'll note that and continue.`, signal);
       }
       patch({ activeDevice: null });
       await speak("Sensor readings collected.", signal);
@@ -261,7 +269,10 @@ export function useCheckinFlow({ camera, onEmergency }: Options) {
       patch({ stage: "VOC_SCAN", activeDevice: "e_nose", activity: "Biochemical fingerprint (experimental)" });
       const [res] = await Promise.all([
         api.collectVoc(checkinId),
-        speak("Beginning biochemical fingerprint assessment. Hold your forearm near the sensor.", signal),
+        speak(
+          "Experimental chemical fingerprint scan of the compounds your skin releases. Hold your forearm near the sensor.",
+          signal,
+        ),
       ]);
       patch({ voc: { channels: res.channels, analysis: res.analysis }, activeDevice: null });
       await speak(res.analysis.flagged ? "Fingerprint scan complete. It differs from your usual pattern; this is experimental and noted for review." : "Fingerprint scan complete.", signal);
@@ -308,7 +319,7 @@ export function useCheckinFlow({ camera, onEmergency }: Options) {
         ready = /ready|done|insert|finished|complete|go ahead/i.test(heard.text) || intent.intent === "affirm" || intent.intent === "continue";
       }
       patch((s) => ({ blood: s.blood && { ...s.blood, phase: "analyzing" }, activity: "Analyzing sample" }));
-      const [res] = await Promise.all([api.bloodAnalyze(test.id), speak("Analyzing your sample. This takes a few seconds.", signal)]);
+      const [res] = await Promise.all([api.bloodAnalyze(test.id), speak("Analyzing hemoglobin, hematocrit, glucose, white blood cells, and lymphocytes.", signal)]);
       patch((s) => ({ blood: s.blood && { ...s.blood, phase: "done", result: res.test, previous: res.previous }, activeDevice: null }));
       const out = Object.values(res.test.results).filter((r) => (r.ref_low !== null && r.value < r.ref_low) || (r.ref_high !== null && r.value > r.ref_high));
       await speak(
